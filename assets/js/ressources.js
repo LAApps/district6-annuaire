@@ -4,7 +4,7 @@
 // ============================================================================
 
 import { RessourcesAPI, THEMATIQUES_RESSOURCES } from "./db.js";
-import { getCurrentUser } from "./auth.js";
+import { getCurrentUser, isCurrentUserAdmin } from "./auth.js";
 import { ADMIN_EMAIL } from "./firebase-config.js";
 import { escapeHtml, toast, openModal, closeModal, wireOverlayClose, formatDate } from "./utils.js";
 import { openImportModal } from "./import.js";
@@ -49,6 +49,9 @@ export async function initRessources() {
     render();
   });
 
+  const admin = isCurrentUserAdmin();
+  els.addBtn.classList.toggle("hidden", !admin);
+  els.importBtn.classList.toggle("hidden", !admin);
   els.addBtn.addEventListener("click", () => openForm());
   els.importBtn.addEventListener("click", () => openImportModal("ressources", loadAndRender));
   document.getElementById("btn-ressource-cancel").addEventListener("click", () => closeModal("modal-ressource-overlay"));
@@ -158,7 +161,7 @@ function renderCard(r) {
         <a class="btn btn-primary btn-sm" data-open href="${escapeHtml(r.url)}" target="_blank" rel="noopener">
           ${r.type === "lien" ? "Ouvrir le lien" : "Télécharger"}
         </a>
-        <button class="btn btn-danger btn-sm" data-action="delete" data-id="${r.id}">Supprimer</button>
+        ${isCurrentUserAdmin() ? `<button class="btn btn-danger btn-sm" data-action="delete" data-id="${r.id}">Supprimer</button>` : ""}
       </div>
     </div>`;
 }

@@ -2,9 +2,9 @@
 
 Application web pour les personnels d'encadrement du **district 6 (Seine-Saint-Denis)** :
 
-- **Annuaire** : nom, prénom, fonction, établissement, portable, fixe, mail. Ajout et modification des fiches.
-- **Ressources** : liens, PDF, ZIP classés par thématique (budget, DHG, management, montage de projet, IA, évaluations, syndicats, textes officiels, bulletins académiques, bulletins départementaux, courriers types, documents types). Ajout de ressource (sous forme de lien — voir note ci-dessous), contact administrateur.
-- **Personnes ressources** : recherche par thème (budget, DHG, EDT, IA, bureautique/informatique, RH, gestion de crises, CPS, EVARS, évaluations nationales) → personnes à contacter (données reprises de l'Annuaire). Ajout de thème et de personne ressource.
+- **Annuaire** : nom, prénom, fonction, établissement, portable, fixe, mail. Chacun peut ajouter sa propre fiche et la modifier ; les administrateurs peuvent gérer toutes les fiches.
+- **Ressources** : liens, PDF, ZIP classés par thématique (budget, DHG, management, montage de projet, IA, évaluations, syndicats, textes officiels, bulletins académiques, bulletins départementaux, courriers types, documents types). Consultation et téléchargement pour tous ; ajout/suppression réservés aux administrateurs. Contact administrateur.
+- **Personnes ressources** : recherche par thème (budget, DHG, EDT, IA, bureautique/informatique, RH, gestion de crises, CPS, EVARS, évaluations nationales) → personnes à contacter (données reprises de l'Annuaire). Consultation pour tous ; ajout de thème/personne ressource réservé aux administrateurs.
 - **Import Excel** : chaque onglet dispose d'un bouton « Importer un fichier Excel » (+ un bouton pour télécharger un modèle vierge) permettant d'alimenter en masse l'annuaire, les ressources ou les personnes ressources depuis un fichier `.xlsx`/`.xls`/`.csv`.
 
 Charte graphique : identité visuelle de l'État / Éducation nationale (bleu France `#000091`, rouge Marianne `#E1000F`, typographie Marianne).
@@ -34,8 +34,9 @@ Ouvrir [`assets/js/firebase-config.js`](assets/js/firebase-config.js) et :
 - Coller les valeurs de config Firebase copiées à l'étape précédente.
 - Adapter `ALLOWED_EMAIL_DOMAINS` (domaine(s) académique(s) autorisés à se connecter).
 - Adapter `ADMIN_EMAIL` (adresse utilisée par le bouton « Contacter l'administrateur »).
+- Adapter `ADMIN_EMAILS` (liste des adresses ayant les droits d'administration — voir section [Rôles](#rôles--administrateur-vs-utilisateur) ci-dessous).
 
-**Important** : le même domaine doit être répété dans [`firestore.rules`](firestore.rules) (ligne `.matches('.*@ac-creteil[.]fr$')`) — c'est la vraie barrière de sécurité, pas le JavaScript.
+**Important** : le domaine et la liste des administrateurs doivent être répétés à l'identique dans [`firestore.rules`](firestore.rules) (fonctions `isAcademicUser()` et `isAdmin()`) — c'est là qu'est la vraie barrière de sécurité, pas dans le JavaScript.
 
 Copier ensuite le contenu de `firestore.rules` dans **Firestore Database → Règles** (bouton *Publier*).
 
@@ -66,6 +67,18 @@ Puis, sur GitHub : **Settings → Pages → Build and deployment → Deploy from
 
 N'oubliez pas d'ajouter cette URL (domaine `<votre-utilisateur>.github.io`) dans **Authentication → Settings → Domaines autorisés** côté Firebase (étape 2).
 
+## Rôles : administrateur vs utilisateur
+
+Il n'y a que deux niveaux d'accès, tous deux basés sur l'adresse e-mail du compte connecté :
+
+- **Administrateur** (adresses listées dans `ADMIN_EMAILS`) : peut tout faire — importer un fichier Excel, ajouter/modifier/supprimer n'importe quelle ressource, thème, personne ressource, ou fiche annuaire.
+- **Utilisateur standard** (toute autre adresse `@ac-creteil.fr`) : peut consulter l'annuaire, les ressources et les personnes ressources, ajouter sa propre fiche annuaire et modifier/supprimer uniquement celle dont le champ « Mail » correspond à sa propre adresse de connexion. Les boutons réservés aux administrateurs sont automatiquement masqués dans l'interface.
+
+**Pour ajouter un administrateur**, il faut modifier les **deux** endroits suivants (l'un sans l'autre ne suffit pas) :
+
+1. `assets/js/firebase-config.js` → ajouter l'adresse dans le tableau `ADMIN_EMAILS` (contrôle l'affichage des boutons).
+2. `firestore.rules` → ajouter la même adresse (en minuscules) dans la liste de la fonction `isAdmin()`, puis republier les règles dans la console Firebase (**Firestore Database → Règles → Publier**). C'est ce fichier qui fait réellement respecter la restriction, quel que soit ce qu'affiche l'interface.
+
 ## Modèle de données Firestore
 
 | Collection | Champs principaux |
@@ -89,8 +102,7 @@ Après l'import, un rapport indique le nombre de lignes importées et détaille,
 
 ## Limites connues / pistes d'évolution
 
-- **Édition des fiches** : par simplicité, toute personne connectée (compte académique) peut modifier ou supprimer n'importe quelle fiche de l'annuaire — il n'y a pas de notion de « propriétaire » de fiche. Une évolution possible serait de stocker l'UID Firebase Auth sur chaque fiche et de n'autoriser la modification qu'à son propriétaire (+ un rôle « administrateur »).
-- **Pas de vérification d'adresse e-mail à l'inscription** : comme les messageries académiques bloquent les e-mails automatiques de Firebase, aucun e-mail de confirmation n'est envoyé à la création d'un compte. Rien n'empêche donc techniquement quelqu'un de créer un compte avec l'adresse d'un·e collègue — acceptable pour une petite équipe de confiance, dans le même esprit que le point ci-dessus.
+- **Pas de vérification d'adresse e-mail à l'inscription** : comme les messageries académiques bloquent les e-mails automatiques de Firebase, aucun e-mail de confirmation n'est envoyé à la création d'un compte. Rien n'empêche donc techniquement quelqu'un de créer un compte avec l'adresse d'un·e collègue, qui pourrait alors modifier sa fiche — acceptable pour une petite équipe de confiance.
 - **Mot de passe oublié = pas de récupération automatique** (même raison : pas d'e-mail de réinitialisation possible). Si quelqu'un perd son mot de passe, un administrateur du projet Firebase doit supprimer son compte manuellement dans **Authentication → Users** (la personne peut alors recréer un compte avec la même adresse) ; ses données dans l'Annuaire ne sont pas affectées, elles n'appartiennent pas à un compte en particulier.
 - **Pas d'upload de fichiers** : choix volontaire pour rester sur le forfait gratuit Spark (voir plus haut). Si un jour le besoin d'upload direct se fait sentir, il suffit de passer le projet Firebase en forfait Blaze, de réactiver Firebase Storage et de restaurer la logique d'upload (facilement récupérable dans l'historique Git).
 - **Police Marianne** : la vraie police officielle n'est pas incluse (fichiers à télécharger vous-même sur <https://www.systeme-de-design.gouv.fr/> et à déposer dans `assets/fonts/`) ; une police système proche est utilisée en attendant.

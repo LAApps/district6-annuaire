@@ -8,7 +8,7 @@
 // ============================================================================
 
 import { app } from "./db.js";
-import { ALLOWED_EMAIL_DOMAINS } from "./firebase-config.js";
+import { ALLOWED_EMAIL_DOMAINS, ADMIN_EMAILS } from "./firebase-config.js";
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -80,6 +80,20 @@ export function logout() {
 
 export function getCurrentUser() {
   return currentUser;
+}
+
+// Contrôle d'affichage côté client uniquement — la vraie restriction est
+// dans firestore.rules (fonction isAdmin()), qui doit lister les mêmes adresses.
+export function isCurrentUserAdmin() {
+  const email = currentUser && currentUser.email;
+  if (!email) return false;
+  return ADMIN_EMAILS.some((a) => a.toLowerCase() === email.toLowerCase());
+}
+
+export function isOwnAnnuaireEntry(entry) {
+  const email = currentUser && currentUser.email;
+  if (!email || !entry || !entry.mail) return false;
+  return entry.mail.toLowerCase() === email.toLowerCase();
 }
 
 onAuthStateChanged(auth, (user) => {

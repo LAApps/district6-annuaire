@@ -1,8 +1,9 @@
 rules_version = '2';
 
 // À coller dans la Console Firebase → Firestore Database → Règles.
-// Adaptez le(s) domaine(s) autorisé(s) ci-dessous (doit correspondre à
-// ALLOWED_EMAIL_DOMAINS dans assets/js/firebase-config.js).
+// Adaptez le(s) domaine(s) autorisé(s) (doit correspondre à
+// ALLOWED_EMAIL_DOMAINS dans assets/js/firebase-config.js) et la liste des
+// administrateurs (doit correspondre à ADMIN_EMAILS dans le même fichier).
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -13,8 +14,38 @@ service cloud.firestore {
         && request.auth.token.email.matches('.*@ac-creteil[.]fr$');
     }
 
-    match /{document=**} {
-      allow read, write: if isAcademicUser();
+    // Liste à tenir identique à ADMIN_EMAILS dans firebase-config.js.
+    function isAdmin() {
+      return isAcademicUser()
+        && request.auth.token.email.lower() in ['lazzouzi@ac-creteil.fr'];
+    }
+
+    function ownsAnnuaireDoc(data) {
+      return data.mail is string
+        && data.mail.lower() == request.auth.token.email.lower();
+    }
+
+    match /annuaire/{docId} {
+      allow read: if isAcademicUser();
+      allow create: if isAcademicUser() && (isAdmin() || ownsAnnuaireDoc(request.resource.data));
+      allow update: if isAcademicUser()
+        && (isAdmin() || (ownsAnnuaireDoc(resource.data) && ownsAnnuaireDoc(request.resource.data)));
+      allow delete: if isAcademicUser() && (isAdmin() || ownsAnnuaireDoc(resource.data));
+    }
+
+    match /ressources/{docId} {
+      allow read: if isAcademicUser();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /themesReseau/{docId} {
+      allow read: if isAcademicUser();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /personnesRessources/{docId} {
+      allow read: if isAcademicUser();
+      allow create, update, delete: if isAdmin();
     }
   }
 }

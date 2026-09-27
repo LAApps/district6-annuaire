@@ -6,6 +6,7 @@
 import { AnnuaireAPI, ThemesReseauAPI, PersonnesRessourcesAPI } from "./db.js";
 import { escapeHtml, toast, openModal, closeModal, wireOverlayClose } from "./utils.js";
 import { openImportModal } from "./import.js";
+import { isCurrentUserAdmin } from "./auth.js";
 
 let themes = [];
 let liens = []; // personnesRessources : {id, themeId, annuaireId, note}
@@ -27,6 +28,11 @@ export async function initContacts() {
 
   wireOverlayClose("modal-theme-overlay");
   wireOverlayClose("modal-personne-ressource-overlay");
+
+  const admin = isCurrentUserAdmin();
+  els.addThemeBtn.classList.toggle("hidden", !admin);
+  els.addLienBtn.classList.toggle("hidden", !admin);
+  els.importBtn.classList.toggle("hidden", !admin);
 
   els.addThemeBtn.addEventListener("click", () => {
     els.formTheme.reset();
@@ -85,7 +91,7 @@ export async function initContacts() {
 
 async function loadThemes() {
   try {
-    themes = await ThemesReseauAPI.ensureDefaults();
+    themes = isCurrentUserAdmin() ? await ThemesReseauAPI.ensureDefaults() : await ThemesReseauAPI.list();
   } catch (err) {
     toast("Impossible de charger les thèmes : " + err.message, "error");
     themes = [];
@@ -156,9 +162,13 @@ function render() {
             ${p.mail ? `<dt>Mail</dt><dd><a href="mailto:${escapeHtml(p.mail)}">${escapeHtml(p.mail)}</a></dd>` : ""}
           </dl>
           ${l.note ? `<p class="field-hint" style="margin-top:.5rem;">${escapeHtml(l.note)}</p>` : ""}
-          <div class="cell-actions" style="margin-top:.6rem;">
-            <button class="btn btn-danger btn-sm" data-action="remove-lien" data-id="${l.id}">Retirer</button>
-          </div>
+          ${
+            isCurrentUserAdmin()
+              ? `<div class="cell-actions" style="margin-top:.6rem;">
+                  <button class="btn btn-danger btn-sm" data-action="remove-lien" data-id="${l.id}">Retirer</button>
+                </div>`
+              : ""
+          }
         </div>`;
     })
     .join("");

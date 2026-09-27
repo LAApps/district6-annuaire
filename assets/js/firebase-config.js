@@ -25,6 +25,15 @@ export const ALLOWED_EMAIL_DOMAINS = ["ac-creteil.fr"];
 // Adresse e-mail de l'administrateur de l'application (bouton "Contacter l'administrateur").
 export const ADMIN_EMAIL = "lazzouzi@ac-creteil.fr";
 
+// Adresses ayant les droits d'administration (import Excel, ajout/suppression
+// de ressources, thèmes, personnes ressources, et modification de n'importe
+// quelle fiche annuaire). Les autres utilisateurs ne peuvent modifier que
+// leur propre fiche annuaire (celle dont le champ "mail" correspond à leur
+// adresse de connexion).
+// IMPORTANT : cette liste doit être répétée à l'identique dans firestore.rules
+// (fonction isAdmin()) — c'est là qu'est la vraie barrière de sécurité.
+export const ADMIN_EMAILS = ["lazzouzi@ac-creteil.fr"];
+
 // Nom affiché dans l'en-tête.
 export const APP_TITLE = "District 6 — Seine-Saint-Denis";
 export const APP_SUBTITLE = "Espace des personnels d'encadrement";

@@ -5,6 +5,7 @@
 import { AnnuaireAPI } from "./db.js";
 import { escapeHtml, toast, openModal, closeModal, wireOverlayClose } from "./utils.js";
 import { openImportModal } from "./import.js";
+import { isCurrentUserAdmin, isOwnAnnuaireEntry, getCurrentUser } from "./auth.js";
 
 let allEntries = [];
 let searchTerm = "";
@@ -31,6 +32,7 @@ export async function initAnnuaire() {
 
   els.addBtn.addEventListener("click", () => openForm(null));
   els.importBtn.addEventListener("click", () => openImportModal("annuaire", loadAndRender));
+  els.importBtn.classList.toggle("hidden", !isCurrentUserAdmin());
 
   els.form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -77,6 +79,7 @@ function matches(entry, term) {
 function render() {
   const filtered = allEntries.filter((e) => matches(e, searchTerm));
   els.empty.classList.toggle("hidden", filtered.length > 0);
+  const admin = isCurrentUserAdmin();
 
   els.tbody.innerHTML = filtered
     .map(
@@ -90,7 +93,11 @@ function render() {
         <td>${escapeHtml(e.fixe)}</td>
         <td>${e.mail ? `<a href="mailto:${escapeHtml(e.mail)}">${escapeHtml(e.mail)}</a>` : ""}</td>
         <td class="cell-actions">
-          <button class="btn btn-secondary btn-sm" data-action="edit" data-id="${e.id}">Modifier</button>
+          ${
+            admin || isOwnAnnuaireEntry(e)
+              ? `<button class="btn btn-secondary btn-sm" data-action="edit" data-id="${e.id}">Modifier</button>`
+              : ""
+          }
         </td>
       </tr>`
     )
@@ -106,8 +113,9 @@ function render() {
 
 function openForm(entry) {
   editingId = entry ? entry.id : null;
+  const admin = isCurrentUserAdmin();
   els.modalTitle.textContent = entry ? "Modifier la fiche" : "Ajouter une fiche";
-  els.deleteBtn.classList.toggle("hidden", !entry);
+  els.deleteBtn.classList.toggle("hidden", !entry || !(admin || isOwnAnnuaireEntry(entry)));
   els.form.reset();
   if (entry) {
     for (const field of ["nom", "prenom", "fonction", "etablissement", "portable", "fixe", "mail"]) {
@@ -115,6 +123,16 @@ function openForm(entry) {
       if (input) input.value = entry[field] || "";
     }
   }
+
+  const mailInput = els.form.elements["mail"];
+  if (!admin) {
+    const ownEmail = (getCurrentUser() && getCurrentUser().email) || "";
+    mailInput.value = ownEmail;
+    mailInput.readOnly = true;
+  } else {
+    mailInput.readOnly = false;
+  }
+
   openModal("modal-annuaire-overlay");
 }
 
