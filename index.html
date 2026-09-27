@@ -207,13 +207,9 @@
             </div>
           </div>
           <div id="champ-ressource-lien" class="form-field">
-            <label for="r-url">URL du lien *</label>
-            <input class="input" id="r-url" name="url" type="url" placeholder="https://…" />
-          </div>
-          <div id="champ-ressource-fichier" class="form-field hidden">
-            <label for="r-fichier">Fichier *</label>
-            <input class="input" id="r-fichier" name="fichier" type="file" />
-            <p class="field-hint">Le fichier est stocké de façon sécurisée et un lien de téléchargement est généré automatiquement.</p>
+            <label id="r-url-label" for="r-url">URL du lien *</label>
+            <input class="input" id="r-url" name="url" type="url" required placeholder="https://…" />
+            <p id="r-url-hint" class="field-hint"></p>
           </div>
           <div class="form-field">
             <label for="r-description">Description (optionnel)</label>

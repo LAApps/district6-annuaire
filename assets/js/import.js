@@ -31,7 +31,7 @@ const TEMPLATES = {
     title: "Importer des ressources depuis Excel",
     instructions:
       `Colonnes attendues : Titre, Thématique (${THEMATIQUES_RESSOURCES.map((t) => t.label).join(", ")}), Type (lien, pdf ou zip), URL, Description. ` +
-      "Pour les PDF/ZIP, indiquez l'URL d'un fichier déjà hébergé (Drive, site académique…) : l'import Excel ne permet pas de joindre un fichier directement.",
+      "L'application n'héberge pas de fichiers : pour un PDF/ZIP, indiquez l'URL d'un fichier déjà déposé sur Drive, l'ENT ou un site académique.",
     sheetName: "Ressources",
     fileName: "modele-ressources.xlsx",
     sampleRows: [

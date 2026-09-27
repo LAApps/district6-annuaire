@@ -25,7 +25,8 @@ export async function initRessources() {
   els.form = document.getElementById("form-ressource");
   els.typeRadios = els.form.querySelectorAll('input[name="type"]');
   els.champLien = document.getElementById("champ-ressource-lien");
-  els.champFichier = document.getElementById("champ-ressource-fichier");
+  els.urlLabel = document.getElementById("r-url-label");
+  els.urlHint = document.getElementById("r-url-hint");
   els.submitBtn = document.getElementById("btn-ressource-submit");
 
   wireOverlayClose("modal-ressource-overlay");
@@ -53,16 +54,7 @@ export async function initRessources() {
   document.getElementById("btn-ressource-cancel").addEventListener("click", () => closeModal("modal-ressource-overlay"));
   document.getElementById("modal-ressource-close").addEventListener("click", () => closeModal("modal-ressource-overlay"));
 
-  els.typeRadios.forEach((radio) =>
-    radio.addEventListener("change", () => {
-      const type = els.form.elements["type"].value;
-      els.champLien.classList.toggle("hidden", type !== "lien");
-      els.champFichier.classList.toggle("hidden", type === "lien");
-      els.form.elements["fichier"].required = type !== "lien";
-      els.form.elements["url"].required = type === "lien";
-      els.form.elements["fichier"].accept = type === "pdf" ? ".pdf" : type === "zip" ? ".zip" : "";
-    })
-  );
+  els.typeRadios.forEach((radio) => radio.addEventListener("change", updateUrlFieldLabel));
 
   els.contactBtn.addEventListener("click", () => {
     const subject = encodeURIComponent("Contact — Application District 6 (Ressources)");
@@ -97,6 +89,17 @@ function matches(res, term) {
 
 function iconLabel(type) {
   return type === "pdf" ? "PDF" : type === "zip" ? "ZIP" : "LIEN";
+}
+
+function updateUrlFieldLabel() {
+  const type = els.form.elements["type"].value;
+  if (type === "lien") {
+    els.urlLabel.textContent = "URL du lien *";
+    els.urlHint.textContent = "";
+  } else {
+    els.urlLabel.textContent = `URL du fichier ${type.toUpperCase()} *`;
+    els.urlHint.textContent = "L'application n'héberge pas les fichiers : indiquez le lien vers un fichier déjà déposé sur Drive, l'ENT ou un site académique.";
+  }
 }
 
 function render() {
@@ -162,10 +165,9 @@ function renderCard(r) {
 
 function openForm() {
   els.form.reset();
-  els.champLien.classList.add("hidden");
-  els.champFichier.classList.add("hidden");
   els.submitBtn.disabled = false;
   els.submitBtn.textContent = "Ajouter";
+  updateUrlFieldLabel();
   openModal("modal-ressource-overlay");
 }
 
@@ -173,10 +175,15 @@ async function saveForm() {
   const titre = els.form.elements["titre"].value.trim();
   const thematique = els.form.elements["thematique"].value;
   const type = els.form.elements["type"].value;
+  const url = els.form.elements["url"].value.trim();
   const description = els.form.elements["description"].value.trim();
 
   if (!titre || !type) {
     toast("Le titre et le type de ressource sont obligatoires.", "error");
+    return;
+  }
+  if (!url) {
+    toast("Merci de renseigner l'URL de la ressource.", "error");
     return;
   }
 
@@ -189,31 +196,10 @@ async function saveForm() {
       titre,
       thematique,
       type,
+      url,
       description,
       ajoutePar: user ? user.displayName || user.email : "",
     };
-
-    if (type === "lien") {
-      const url = els.form.elements["url"].value.trim();
-      if (!url) {
-        toast("Merci de renseigner l'URL du lien.", "error");
-        els.submitBtn.disabled = false;
-        els.submitBtn.textContent = "Ajouter";
-        return;
-      }
-      data.url = url;
-    } else {
-      const file = els.form.elements["fichier"].files[0];
-      if (!file) {
-        toast("Merci de sélectionner un fichier.", "error");
-        els.submitBtn.disabled = false;
-        els.submitBtn.textContent = "Ajouter";
-        return;
-      }
-      const { url, storagePath } = await RessourcesAPI.uploadFile(file, thematique);
-      data.url = url;
-      data.storagePath = storagePath;
-    }
 
     await RessourcesAPI.add(data);
     toast("Ressource ajoutée.", "success");

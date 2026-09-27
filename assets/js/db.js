@@ -18,17 +18,8 @@ import {
   orderBy,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
-import {
-  getStorage,
-  ref as storageRef,
-  uploadBytes,
-  getDownloadURL,
-  deleteObject,
-} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-storage.js";
-
 export const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
-export const storage = getStorage(app);
 
 // ----- Collections -----------------------------------------------------
 const col = {
@@ -91,26 +82,13 @@ export const AnnuaireAPI = {
 };
 
 // ----- Ressources ----------------------------------------------------------
+// Les PDF/ZIP ne sont pas hébergés par l'application (pas de Firebase Storage,
+// pour rester sur le forfait gratuit Spark) : on stocke uniquement l'URL d'un
+// fichier déjà hébergé ailleurs (Drive, ENT, site académique…).
 export const RessourcesAPI = {
   list: () => genericList(col.ressources, "createdAt"),
   add: (data) => genericAdd(col.ressources, data),
-  remove: async (item) => {
-    if (item.storagePath) {
-      try {
-        await deleteObject(storageRef(storage, item.storagePath));
-      } catch (e) {
-        console.warn("Suppression fichier storage impossible :", e);
-      }
-    }
-    return genericDelete(col.ressources, item.id);
-  },
-  uploadFile: async (file, thematiqueId) => {
-    const path = `ressources/${thematiqueId}/${Date.now()}_${file.name}`;
-    const ref = storageRef(storage, path);
-    await uploadBytes(ref, file);
-    const url = await getDownloadURL(ref);
-    return { url, storagePath: path };
-  },
+  remove: (item) => genericDelete(col.ressources, item.id),
 };
 
 // ----- Thèmes réseau + personnes ressources -------------------------------
