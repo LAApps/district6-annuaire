@@ -9,12 +9,12 @@
 // ============================================================================
 
 export const firebaseConfig = {
-  apiKey: "VOTRE_API_KEY",
-  authDomain: "VOTRE_PROJET.firebaseapp.com",
-  projectId: "VOTRE_PROJET",
-  storageBucket: "VOTRE_PROJET.appspot.com",
-  messagingSenderId: "VOTRE_SENDER_ID",
-  appId: "VOTRE_APP_ID",
+  apiKey: "AIzaSyCUqqkeXqoJTKZQoiUa_F-jpl9rLBIGmQ8",
+  authDomain: "annuaired6.firebaseapp.com",
+  projectId: "annuaired6",
+  storageBucket: "annuaired6.firebasestorage.app",
+  messagingSenderId: "233254619364",
+  appId: "1:233254619364:web:5eea31b1d653a3e3f604f1",
 };
 
 // Domaine(s) autorisés à se connecter (adresses académiques).
@@ -23,7 +23,7 @@ export const firebaseConfig = {
 export const ALLOWED_EMAIL_DOMAINS = ["ac-creteil.fr"];
 
 // Adresse e-mail de l'administrateur de l'application (bouton "Contacter l'administrateur").
-export const ADMIN_EMAIL = "administrateur.district6@ac-creteil.fr";
+export const ADMIN_EMAIL = "lazzouzi@ac-creteil.fr";
 
 // Nom affiché dans l'en-tête.
 export const APP_TITLE = "District 6 — Seine-Saint-Denis";
