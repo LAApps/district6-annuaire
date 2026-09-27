@@ -2,7 +2,7 @@
 // Orchestration générale : authentification + navigation par onglets.
 // ============================================================================
 
-import { sendLoginLink, isLoginLink, completeLoginFromLink, logout, onUserChange } from "./auth.js";
+import { signup, login, logout, onUserChange } from "./auth.js";
 import { initAnnuaire } from "./annuaire.js";
 import { initRessources } from "./ressources.js";
 import { initContacts } from "./contacts.js";
@@ -20,65 +20,57 @@ const userName = document.getElementById("user-name");
 
 const initialized = { annuaire: false, ressources: false, contacts: false };
 
-// ----- Écran de connexion (lien e-mail) --------------------------------------
-const loginSteps = {
-  request: document.getElementById("login-step-request"),
-  sent: document.getElementById("login-step-sent"),
-  confirm: document.getElementById("login-step-confirm"),
-  loading: document.getElementById("login-step-loading"),
-};
-function showLoginStep(name) {
-  Object.values(loginSteps).forEach((el) => el.classList.add("hidden"));
-  loginSteps[name].classList.remove("hidden");
-}
-function showLoginError(message) {
-  loginError.textContent = message;
-  loginError.classList.remove("hidden");
-}
+// ----- Écran de connexion (e-mail + mot de passe) ----------------------------
+const formAuth = document.getElementById("form-auth");
+const submitBtn = document.getElementById("btn-auth-submit");
+const toggleLink = document.getElementById("btn-toggle-mode");
+const modeQuestion = document.getElementById("login-mode-question");
+const passwordHint = document.getElementById("login-password-hint");
 
-document.getElementById("form-login-request").addEventListener("submit", async (e) => {
+let mode = "login"; // "login" | "signup"
+
+function applyMode() {
+  if (mode === "login") {
+    submitBtn.textContent = "Se connecter";
+    modeQuestion.textContent = "Pas encore de compte ?";
+    toggleLink.textContent = "Créer un compte";
+    passwordHint.classList.add("hidden");
+  } else {
+    submitBtn.textContent = "Créer mon compte";
+    modeQuestion.textContent = "Déjà un compte ?";
+    toggleLink.textContent = "Se connecter";
+    passwordHint.classList.remove("hidden");
+  }
+}
+applyMode();
+
+toggleLink.addEventListener("click", (e) => {
+  e.preventDefault();
+  mode = mode === "login" ? "signup" : "login";
+  loginError.classList.add("hidden");
+  applyMode();
+});
+
+formAuth.addEventListener("submit", async (e) => {
   e.preventDefault();
   loginError.classList.add("hidden");
   const email = document.getElementById("login-email").value.trim();
+  const password = document.getElementById("login-password").value;
+
+  submitBtn.disabled = true;
   try {
-    await sendLoginLink(email);
-    document.getElementById("login-sent-email").textContent = email;
-    showLoginStep("sent");
-  } catch (err) {
-    showLoginError(err.message);
-  }
-});
-
-document.getElementById("btn-resend-link").addEventListener("click", () => {
-  loginError.classList.add("hidden");
-  showLoginStep("request");
-});
-
-document.getElementById("form-login-confirm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  loginError.classList.add("hidden");
-  const email = document.getElementById("login-confirm-email").value.trim();
-  showLoginStep("loading");
-  try {
-    await completeLoginFromLink(email);
-  } catch (err) {
-    showLoginError(err.message);
-    showLoginStep("confirm");
-  }
-});
-
-// Retour depuis le lien reçu par e-mail
-if (isLoginLink()) {
-  showLoginStep("loading");
-  completeLoginFromLink().catch((err) => {
-    if (err.message === "EMAIL_NEEDED") {
-      showLoginStep("confirm");
+    if (mode === "signup") {
+      await signup(email, password);
     } else {
-      showLoginError(err.message);
-      showLoginStep("request");
+      await login(email, password);
     }
-  });
-}
+  } catch (err) {
+    loginError.textContent = err.message;
+    loginError.classList.remove("hidden");
+  } finally {
+    submitBtn.disabled = false;
+  }
+});
 
 btnLogout.addEventListener("click", () => logout());
 

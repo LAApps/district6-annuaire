@@ -14,7 +14,7 @@ Charte graphique : identité visuelle de l'État / Éducation nationale (bleu Fr
 C'est un site **100 % statique** (HTML/CSS/JS, aucune installation Node/npm requise) qui utilise **Firebase** (forfait gratuit **Spark**, aucune carte bancaire requise) comme backend partagé :
 
 - **Firestore** : base de données (annuaire, ressources, thèmes, personnes ressources).
-- **Firebase Authentication (lien e-mail, sans mot de passe)** : connexion restreinte aux adresses du domaine académique, pour protéger les données personnelles (téléphones, mails) des agents. Ce mode fonctionne avec n'importe quelle adresse e-mail (pas besoin d'un compte Google), en envoyant un lien de connexion à usage unique.
+- **Firebase Authentication (e-mail + mot de passe)** : connexion restreinte aux adresses du domaine académique, pour protéger les données personnelles (téléphones, mails) des agents. Chaque personne crée son propre compte (adresse académique + mot de passe de son choix) directement dans l'application, sans dépendre d'un compte Google ni d'un e-mail envoyé automatiquement — les messageries académiques (`.gouv.fr` / Éducation nationale) bloquent souvent silencieusement les e-mails automatiques externes (testé et confirmé sur ce projet), ce qui rend inutilisables la connexion Google et le lien de connexion par e-mail.
 
 Il n'y a volontairement **pas de Firebase Storage** (depuis fin 2024, Google exige un compte de facturation Blaze même pour le forfait gratuit de Storage). Les ressources de type PDF/ZIP ne sont donc pas uploadées dans l'application : on y renseigne l'URL d'un fichier déjà hébergé ailleurs (Drive, ENT, site académique…), exactement comme pour une ressource de type « lien ».
 
@@ -23,7 +23,7 @@ Cela permet de déployer le site tel quel sur **GitHub Pages** (ou tout héberge
 ## 1. Créer le projet Firebase (gratuit, ~10 min, forfait Spark)
 
 1. Aller sur <https://console.firebase.google.com> → **Ajouter un projet**.
-2. Dans le projet : **Authentication** → Sign-in method → activer **E-mail/Mot de passe**, puis dans ses options activer **Lien e-mail (connexion sans mot de passe)**.
+2. Dans le projet : **Authentication** → Sign-in method → activer **E-mail/Mot de passe** (la première option, sans activer « Lien e-mail »).
 3. **Firestore Database** → Créer une base → édition **Standard** → mode **production**.
 4. **Paramètres du projet** (roue crantée) → **Vos applications** → **</> Web** → donner un nom → copier la config affichée.
 
@@ -64,7 +64,7 @@ git push -u origin main
 
 Puis, sur GitHub : **Settings → Pages → Build and deployment → Deploy from a branch → `main` / `/ (root)`**. Le site sera servi à `https://<votre-utilisateur>.github.io/<votre-repo>/`.
 
-N'oubliez pas d'ajouter cette URL (domaine `<votre-utilisateur>.github.io`) dans **Authentication → Settings → Domaines autorisés** côté Firebase (étape 2), sinon l'envoi du lien de connexion échouera.
+N'oubliez pas d'ajouter cette URL (domaine `<votre-utilisateur>.github.io`) dans **Authentication → Settings → Domaines autorisés** côté Firebase (étape 2).
 
 ## Modèle de données Firestore
 
@@ -90,6 +90,8 @@ Après l'import, un rapport indique le nombre de lignes importées et détaille,
 ## Limites connues / pistes d'évolution
 
 - **Édition des fiches** : par simplicité, toute personne connectée (compte académique) peut modifier ou supprimer n'importe quelle fiche de l'annuaire — il n'y a pas de notion de « propriétaire » de fiche. Une évolution possible serait de stocker l'UID Firebase Auth sur chaque fiche et de n'autoriser la modification qu'à son propriétaire (+ un rôle « administrateur »).
+- **Pas de vérification d'adresse e-mail à l'inscription** : comme les messageries académiques bloquent les e-mails automatiques de Firebase, aucun e-mail de confirmation n'est envoyé à la création d'un compte. Rien n'empêche donc techniquement quelqu'un de créer un compte avec l'adresse d'un·e collègue — acceptable pour une petite équipe de confiance, dans le même esprit que le point ci-dessus.
+- **Mot de passe oublié = pas de récupération automatique** (même raison : pas d'e-mail de réinitialisation possible). Si quelqu'un perd son mot de passe, un administrateur du projet Firebase doit supprimer son compte manuellement dans **Authentication → Users** (la personne peut alors recréer un compte avec la même adresse) ; ses données dans l'Annuaire ne sont pas affectées, elles n'appartiennent pas à un compte en particulier.
 - **Pas d'upload de fichiers** : choix volontaire pour rester sur le forfait gratuit Spark (voir plus haut). Si un jour le besoin d'upload direct se fait sentir, il suffit de passer le projet Firebase en forfait Blaze, de réactiver Firebase Storage et de restaurer la logique d'upload (facilement récupérable dans l'historique Git).
 - **Police Marianne** : la vraie police officielle n'est pas incluse (fichiers à télécharger vous-même sur <https://www.systeme-de-design.gouv.fr/> et à déposer dans `assets/fonts/`) ; une police système proche est utilisée en attendant.
 - **Contact administrateur** : implémenté via un simple lien `mailto:`, sans backend d'envoi d'e-mail.
