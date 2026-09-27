@@ -43,9 +43,22 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
 
+    // Un utilisateur standard peut se déclarer lui-même comme personne
+    // ressource (son annuaireId doit correspondre à SA PROPRE fiche annuaire,
+    // identifiée par le champ "mail") ; seul un administrateur peut déclarer
+    // quelqu'un d'autre.
+    function isOwnPersonneRessource(data) {
+      return data.annuaireId is string
+        && get(/databases/$(database)/documents/annuaire/$(data.annuaireId)).data.mail is string
+        && get(/databases/$(database)/documents/annuaire/$(data.annuaireId)).data.mail.lower() == request.auth.token.email.lower();
+    }
+
     match /personnesRessources/{docId} {
       allow read: if isAcademicUser();
-      allow create, update, delete: if isAdmin();
+      allow create: if isAcademicUser() && (isAdmin() || isOwnPersonneRessource(request.resource.data));
+      allow update: if isAcademicUser()
+        && (isAdmin() || (isOwnPersonneRessource(resource.data) && isOwnPersonneRessource(request.resource.data)));
+      allow delete: if isAcademicUser() && (isAdmin() || isOwnPersonneRessource(resource.data));
     }
   }
 }

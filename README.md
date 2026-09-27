@@ -4,7 +4,7 @@ Application web pour les personnels d'encadrement du **district 6 (Seine-Saint-D
 
 - **Annuaire** : nom, prénom, fonction, établissement, portable, fixe, mail. Chacun peut ajouter sa propre fiche et la modifier ; les administrateurs peuvent gérer toutes les fiches.
 - **Ressources** : liens, PDF, ZIP classés par thématique (budget, DHG, management, montage de projet, IA, évaluations, syndicats, textes officiels, bulletins académiques, bulletins départementaux, courriers types, documents types). Consultation et téléchargement pour tous ; ajout/suppression réservés aux administrateurs. Contact administrateur.
-- **Personnes ressources** : recherche par thème (budget, DHG, EDT, IA, bureautique/informatique, RH, gestion de crises, CPS, EVARS, évaluations nationales) → personnes à contacter (données reprises de l'Annuaire). Consultation pour tous ; ajout de thème/personne ressource réservé aux administrateurs.
+- **Personnes ressources** : recherche par thème (budget, DHG, EDT, IA, bureautique/informatique, RH, gestion de crises, CPS, EVARS, évaluations nationales) → personnes à contacter (données reprises de l'Annuaire). Consultation pour tous ; chacun peut se déclarer soi-même comme personne ressource sur un thème existant (il faut d'abord avoir sa propre fiche dans l'Annuaire) ; création de thème et déclaration d'un·e collègue réservées aux administrateurs.
 - **Import Excel** : chaque onglet dispose d'un bouton « Importer un fichier Excel » (+ un bouton pour télécharger un modèle vierge) permettant d'alimenter en masse l'annuaire, les ressources ou les personnes ressources depuis un fichier `.xlsx`/`.xls`/`.csv`.
 
 Charte graphique : identité visuelle de l'État / Éducation nationale (bleu France `#000091`, rouge Marianne `#E1000F`, typographie Marianne).
@@ -72,7 +72,7 @@ N'oubliez pas d'ajouter cette URL (domaine `<votre-utilisateur>.github.io`) dans
 Il n'y a que deux niveaux d'accès, tous deux basés sur l'adresse e-mail du compte connecté :
 
 - **Administrateur** (adresses listées dans `ADMIN_EMAILS`) : peut tout faire — importer un fichier Excel, ajouter/modifier/supprimer n'importe quelle ressource, thème, personne ressource, ou fiche annuaire.
-- **Utilisateur standard** (toute autre adresse `@ac-creteil.fr`) : peut consulter l'annuaire, les ressources et les personnes ressources, ajouter sa propre fiche annuaire et modifier/supprimer uniquement celle dont le champ « Mail » correspond à sa propre adresse de connexion. Les boutons réservés aux administrateurs sont automatiquement masqués dans l'interface.
+- **Utilisateur standard** (toute autre adresse `@ac-creteil.fr`) : peut consulter l'annuaire, les ressources et les personnes ressources ; ajouter sa propre fiche annuaire et modifier/supprimer uniquement celle dont le champ « Mail » correspond à sa propre adresse de connexion ; se déclarer lui-même comme personne ressource sur un thème existant (nécessite d'avoir déjà sa fiche annuaire) et retirer sa propre déclaration. Les boutons réservés aux administrateurs sont automatiquement masqués dans l'interface.
 
 **Pour ajouter un administrateur**, il faut modifier les **deux** endroits suivants (l'un sans l'autre ne suffit pas) :
 

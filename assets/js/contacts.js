@@ -6,7 +6,7 @@
 import { AnnuaireAPI, ThemesReseauAPI, PersonnesRessourcesAPI } from "./db.js";
 import { escapeHtml, toast, openModal, closeModal, wireOverlayClose } from "./utils.js";
 import { openImportModal } from "./import.js";
-import { isCurrentUserAdmin } from "./auth.js";
+import { isCurrentUserAdmin, isOwnAnnuaireEntry } from "./auth.js";
 
 let themes = [];
 let liens = []; // personnesRessources : {id, themeId, annuaireId, note}
@@ -31,8 +31,9 @@ export async function initContacts() {
 
   const admin = isCurrentUserAdmin();
   els.addThemeBtn.classList.toggle("hidden", !admin);
-  els.addLienBtn.classList.toggle("hidden", !admin);
   els.importBtn.classList.toggle("hidden", !admin);
+  // "Ajouter une personne ressource" reste visible à tous : un utilisateur
+  // standard peut se déclarer lui-même (voir openLienForm / firestore.rules).
 
   els.addThemeBtn.addEventListener("click", () => {
     els.formTheme.reset();
@@ -163,7 +164,7 @@ function render() {
           </dl>
           ${l.note ? `<p class="field-hint" style="margin-top:.5rem;">${escapeHtml(l.note)}</p>` : ""}
           ${
-            isCurrentUserAdmin()
+            isCurrentUserAdmin() || isOwnAnnuaireEntry(p)
               ? `<div class="cell-actions" style="margin-top:.6rem;">
                   <button class="btn btn-danger btn-sm" data-action="remove-lien" data-id="${l.id}">Retirer</button>
                 </div>`
@@ -188,15 +189,24 @@ function render() {
 }
 
 function openLienForm() {
+  const admin = isCurrentUserAdmin();
+  const choices = admin ? annuaire : annuaire.filter((p) => isOwnAnnuaireEntry(p));
+
+  if (choices.length === 0) {
+    toast("Ajoutez d'abord votre fiche dans l'onglet Annuaire avant de vous déclarer comme personne ressource.", "error");
+    return;
+  }
+
   els.formLien.reset();
   const themeSelect = els.formLien.elements["themeId"];
   themeSelect.innerHTML = themes.map((t) => `<option value="${t.id}">${escapeHtml(t.nom)}</option>`).join("");
   if (selectedThemeId) themeSelect.value = selectedThemeId;
 
   const personneSelect = els.formLien.elements["annuaireId"];
-  personneSelect.innerHTML = annuaire
+  personneSelect.innerHTML = choices
     .map((p) => `<option value="${p.id}">${escapeHtml(p.prenom)} ${escapeHtml(p.nom)} — ${escapeHtml(p.fonction || "")}</option>`)
     .join("");
+  personneSelect.disabled = !admin && choices.length === 1;
 
   openModal("modal-personne-ressource-overlay");
 }
