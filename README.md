@@ -14,7 +14,7 @@ Charte graphique : identité visuelle de l'État / Éducation nationale (bleu Fr
 C'est un site **100 % statique** (HTML/CSS/JS, aucune installation Node/npm requise) qui utilise **Firebase** (forfait gratuit **Spark**, aucune carte bancaire requise) comme backend partagé :
 
 - **Firestore** : base de données (annuaire, ressources, thèmes, personnes ressources).
-- **Firebase Authentication (Google)** : connexion restreinte aux adresses du domaine académique, pour protéger les données personnelles (téléphones, mails) des agents.
+- **Firebase Authentication (lien e-mail, sans mot de passe)** : connexion restreinte aux adresses du domaine académique, pour protéger les données personnelles (téléphones, mails) des agents. Ce mode fonctionne avec n'importe quelle adresse e-mail (pas besoin d'un compte Google), en envoyant un lien de connexion à usage unique.
 
 Il n'y a volontairement **pas de Firebase Storage** (depuis fin 2024, Google exige un compte de facturation Blaze même pour le forfait gratuit de Storage). Les ressources de type PDF/ZIP ne sont donc pas uploadées dans l'application : on y renseigne l'URL d'un fichier déjà hébergé ailleurs (Drive, ENT, site académique…), exactement comme pour une ressource de type « lien ».
 
@@ -23,7 +23,7 @@ Cela permet de déployer le site tel quel sur **GitHub Pages** (ou tout héberge
 ## 1. Créer le projet Firebase (gratuit, ~10 min, forfait Spark)
 
 1. Aller sur <https://console.firebase.google.com> → **Ajouter un projet**.
-2. Dans le projet : **Authentication** → Sign-in method → activer **Google**.
+2. Dans le projet : **Authentication** → Sign-in method → activer **E-mail/Mot de passe**, puis dans ses options activer **Lien e-mail (connexion sans mot de passe)**.
 3. **Firestore Database** → Créer une base → édition **Standard** → mode **production**.
 4. **Paramètres du projet** (roue crantée) → **Vos applications** → **</> Web** → donner un nom → copier la config affichée.
 
@@ -64,7 +64,7 @@ git push -u origin main
 
 Puis, sur GitHub : **Settings → Pages → Build and deployment → Deploy from a branch → `main` / `/ (root)`**. Le site sera servi à `https://<votre-utilisateur>.github.io/<votre-repo>/`.
 
-N'oubliez pas d'ajouter cette URL (domaine `<votre-utilisateur>.github.io`) dans **Authentication → Domaines autorisés** côté Firebase (étape 2), sinon la connexion Google échouera.
+N'oubliez pas d'ajouter cette URL (domaine `<votre-utilisateur>.github.io`) dans **Authentication → Settings → Domaines autorisés** côté Firebase (étape 2), sinon l'envoi du lien de connexion échouera.
 
 ## Modèle de données Firestore
 

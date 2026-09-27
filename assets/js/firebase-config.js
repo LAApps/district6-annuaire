@@ -3,9 +3,9 @@
 // Console : https://console.firebase.google.com  →  Paramètres du projet
 //           →  Vos applications  →  Config SDK
 // Ces valeurs ne sont pas secrètes (elles s'affichent côté navigateur), mais
-// la sécurité réelle des données est assurée par les règles Firestore/Storage
-// (voir firestore.rules et storage.rules) + l'authentification Google
-// restreinte au domaine académique.
+// la sécurité réelle des données est assurée par les règles Firestore
+// (voir firestore.rules) + l'authentification par lien e-mail restreinte
+// au domaine académique.
 // ============================================================================
 
 export const firebaseConfig = {

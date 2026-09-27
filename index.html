@@ -18,10 +18,42 @@
         <span>RÉPUBLIQUE</span><span>FRANÇAISE</span>
       </div>
       <h1>District 6 — Seine-Saint-Denis</h1>
-      <p>Espace réservé aux personnels d'encadrement. Connectez-vous avec votre compte académique pour accéder à l'annuaire, aux ressources et au réseau des personnes ressources.</p>
-      <button id="btn-login" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:1rem;">
-        Se connecter avec Google
-      </button>
+      <p>Espace réservé aux personnels d'encadrement. Connectez-vous avec votre adresse académique pour accéder à l'annuaire, aux ressources et au réseau des personnes ressources.</p>
+
+      <div id="login-step-request">
+        <form id="form-login-request">
+          <div class="form-field" style="text-align:left;">
+            <label for="login-email">Adresse e-mail académique</label>
+            <input class="input" id="login-email" type="email" required placeholder="prenom.nom@ac-creteil.fr" style="width:100%;" />
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:1rem;">
+            Recevoir le lien de connexion
+          </button>
+        </form>
+      </div>
+
+      <div id="login-step-sent" class="hidden">
+        <p style="color:var(--vert-succes);font-weight:600;">Lien envoyé !</p>
+        <p>Vérifiez votre boîte mail (<strong id="login-sent-email"></strong>) — et vos spams — puis cliquez sur le lien reçu pour vous connecter.</p>
+        <button type="button" id="btn-resend-link" class="btn btn-secondary btn-sm">Utiliser une autre adresse</button>
+      </div>
+
+      <div id="login-step-confirm" class="hidden">
+        <p>Pour terminer la connexion, confirmez votre adresse e-mail :</p>
+        <form id="form-login-confirm">
+          <div class="form-field" style="text-align:left;">
+            <input class="input" id="login-confirm-email" type="email" required placeholder="prenom.nom@ac-creteil.fr" style="width:100%;" />
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:1rem;">
+            Se connecter
+          </button>
+        </form>
+      </div>
+
+      <div id="login-step-loading" class="hidden">
+        <p>Connexion en cours…</p>
+      </div>
+
       <div id="login-error" class="login-error hidden"></div>
     </div>
   </div>

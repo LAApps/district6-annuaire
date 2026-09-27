@@ -1,23 +1,25 @@
 // ============================================================================
-// Authentification — Connexion Google restreinte au(x) domaine(s) académique(s).
-// La vraie barrière de sécurité est dans firestore.rules / storage.rules :
-// ce fichier ne fait qu'offrir une expérience de connexion cohérente et un
-// message clair si un compte hors domaine tente de se connecter.
+// Authentification — Connexion par lien e-mail (passwordless), restreinte
+// au(x) domaine(s) académique(s). Adapté aux adresses académiques qui ne
+// sont pas des comptes Google (ex. @ac-creteil.fr).
+// La vraie barrière de sécurité est dans firestore.rules : ce fichier ne
+// fait qu'offrir une expérience de connexion cohérente.
 // ============================================================================
 
 import { app } from "./db.js";
 import { ALLOWED_EMAIL_DOMAINS } from "./firebase-config.js";
 import {
   getAuth,
-  GoogleAuthProvider,
-  signInWithPopup,
+  sendSignInLinkToEmail,
+  isSignInWithEmailLink,
+  signInWithEmailLink,
   signOut,
   onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
 export const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
-provider.setCustomParameters({ hd: ALLOWED_EMAIL_DOMAINS[0] || "" });
+
+const STORAGE_KEY = "district6_email_for_signin";
 
 let currentUser = null;
 const listeners = [];
@@ -26,7 +28,6 @@ export function onUserChange(cb) {
   listeners.push(cb);
   cb(currentUser);
 }
-
 function notify() {
   listeners.forEach((cb) => cb(currentUser));
 }
@@ -37,15 +38,36 @@ function isAllowedDomain(email) {
   return ALLOWED_EMAIL_DOMAINS.some((domain) => email.toLowerCase().endsWith("@" + domain.toLowerCase()));
 }
 
-export async function login() {
-  const result = await signInWithPopup(auth, provider);
-  const email = result.user.email || "";
-  if (!isAllowedDomain(email)) {
-    await signOut(auth);
-    throw new Error(
-      `Ce compte (${email}) n'appartient pas au domaine académique autorisé (${ALLOWED_EMAIL_DOMAINS.join(", ")}).`
-    );
+function domainErrorMessage() {
+  return `Seules les adresses ${ALLOWED_EMAIL_DOMAINS.join(", ")} sont autorisées à se connecter.`;
+}
+
+// ----- Envoi du lien de connexion --------------------------------------------
+export async function sendLoginLink(email) {
+  if (!isAllowedDomain(email)) throw new Error(domainErrorMessage());
+  const actionCodeSettings = {
+    url: window.location.href.split("?")[0].split("#")[0],
+    handleCodeInApp: true,
+  };
+  await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+  window.localStorage.setItem(STORAGE_KEY, email);
+}
+
+// ----- Complétion de la connexion (retour depuis le lien reçu par mail) ------
+export function isLoginLink() {
+  return isSignInWithEmailLink(auth, window.location.href);
+}
+
+export async function completeLoginFromLink(emailOverride) {
+  const email = emailOverride || window.localStorage.getItem(STORAGE_KEY);
+  if (!email) {
+    throw new Error("EMAIL_NEEDED");
   }
+  if (!isAllowedDomain(email)) throw new Error(domainErrorMessage());
+
+  const result = await signInWithEmailLink(auth, email, window.location.href);
+  window.localStorage.removeItem(STORAGE_KEY);
+  window.history.replaceState({}, document.title, window.location.pathname);
   return result.user;
 }
 

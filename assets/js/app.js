@@ -2,7 +2,7 @@
 // Orchestration générale : authentification + navigation par onglets.
 // ============================================================================
 
-import { login, logout, onUserChange } from "./auth.js";
+import { sendLoginLink, isLoginLink, completeLoginFromLink, logout, onUserChange } from "./auth.js";
 import { initAnnuaire } from "./annuaire.js";
 import { initRessources } from "./ressources.js";
 import { initContacts } from "./contacts.js";
@@ -14,25 +14,71 @@ initImport();
 const loginScreen = document.getElementById("login-screen");
 const appShell = document.getElementById("app-shell");
 const loginError = document.getElementById("login-error");
-const btnLogin = document.getElementById("btn-login");
 const btnLogout = document.getElementById("btn-logout");
 const userAvatar = document.getElementById("user-avatar");
 const userName = document.getElementById("user-name");
 
 const initialized = { annuaire: false, ressources: false, contacts: false };
 
-btnLogin.addEventListener("click", async () => {
+// ----- Écran de connexion (lien e-mail) --------------------------------------
+const loginSteps = {
+  request: document.getElementById("login-step-request"),
+  sent: document.getElementById("login-step-sent"),
+  confirm: document.getElementById("login-step-confirm"),
+  loading: document.getElementById("login-step-loading"),
+};
+function showLoginStep(name) {
+  Object.values(loginSteps).forEach((el) => el.classList.add("hidden"));
+  loginSteps[name].classList.remove("hidden");
+}
+function showLoginError(message) {
+  loginError.textContent = message;
+  loginError.classList.remove("hidden");
+}
+
+document.getElementById("form-login-request").addEventListener("submit", async (e) => {
+  e.preventDefault();
   loginError.classList.add("hidden");
-  btnLogin.disabled = true;
+  const email = document.getElementById("login-email").value.trim();
   try {
-    await login();
+    await sendLoginLink(email);
+    document.getElementById("login-sent-email").textContent = email;
+    showLoginStep("sent");
   } catch (err) {
-    loginError.textContent = err.message;
-    loginError.classList.remove("hidden");
-  } finally {
-    btnLogin.disabled = false;
+    showLoginError(err.message);
   }
 });
+
+document.getElementById("btn-resend-link").addEventListener("click", () => {
+  loginError.classList.add("hidden");
+  showLoginStep("request");
+});
+
+document.getElementById("form-login-confirm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  loginError.classList.add("hidden");
+  const email = document.getElementById("login-confirm-email").value.trim();
+  showLoginStep("loading");
+  try {
+    await completeLoginFromLink(email);
+  } catch (err) {
+    showLoginError(err.message);
+    showLoginStep("confirm");
+  }
+});
+
+// Retour depuis le lien reçu par e-mail
+if (isLoginLink()) {
+  showLoginStep("loading");
+  completeLoginFromLink().catch((err) => {
+    if (err.message === "EMAIL_NEEDED") {
+      showLoginStep("confirm");
+    } else {
+      showLoginError(err.message);
+      showLoginStep("request");
+    }
+  });
+}
 
 btnLogout.addEventListener("click", () => logout());
 
