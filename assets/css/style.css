@@ -1,0 +1,676 @@
+/* ============================================================================
+   Charte graphique — Éducation nationale / Système de Design de l'État (DSFR)
+   Bleu France #000091, Rouge Marianne #E1000F, typographie Marianne.
+   Pour un rendu fidèle à 100%, déposez les fichiers officiels de la police
+   Marianne dans assets/fonts/ (voir @font-face ci-dessous) — téléchargeables
+   sur https://www.systeme-de-design.gouv.fr/
+   ============================================================================ */
+
+@font-face {
+  font-family: "Marianne";
+  src: url("../fonts/Marianne-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Marianne";
+  src: url("../fonts/Marianne-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Marianne";
+  src: url("../fonts/Marianne-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Palette officielle DSFR */
+  --bleu-france: #000091;
+  --bleu-france-hover: #1212ff;
+  --bleu-france-light: #e3e3fd;
+  --rouge-marianne: #e1000f;
+  --rouge-marianne-hover: #c9184a;
+  --vert-succes: #18753c;
+  --vert-succes-bg: #dffee6;
+  --orange-alerte: #b34000;
+  --orange-alerte-bg: #fff4f3;
+  --gris-texte: #161616;
+  --gris-texte-mute: #666666;
+  --gris-bordure: #dddddd;
+  --gris-fond-alt: #f6f6f6;
+  --blanc: #ffffff;
+  --rayon: 6px;
+  --ombre: 0 2px 6px rgba(0, 0, 0, 0.12);
+  font-synthesis: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Marianne", -apple-system, "Segoe UI", Arial, sans-serif;
+  color: var(--gris-texte);
+  background: var(--gris-fond-alt);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+a {
+  color: var(--bleu-france);
+}
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--blanc);
+  padding: 0.5rem 1rem;
+  z-index: 999;
+}
+.skip-link:focus {
+  left: 0;
+}
+
+/* ----- Bandeau tricolore --------------------------------------------- */
+.tricolor-bar {
+  display: flex;
+  height: 4px;
+  width: 100%;
+}
+.tricolor-bar span {
+  flex: 1;
+}
+.tricolor-bar .bleu {
+  background: var(--bleu-france);
+}
+.tricolor-bar .blanc {
+  background: var(--blanc);
+}
+.tricolor-bar .rouge {
+  background: var(--rouge-marianne);
+}
+
+/* ----- En-tête institutionnel ------------------------------------------ */
+.app-header {
+  background: var(--blanc);
+  border-bottom: 1px solid var(--gris-bordure);
+}
+.app-header__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.institution-block {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.marianne-mark {
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.1;
+  letter-spacing: 0.03em;
+  padding-right: 1rem;
+  border-right: 2px solid var(--gris-texte);
+}
+.marianne-mark span {
+  display: block;
+}
+.institution-name {
+  font-size: 0.95rem;
+  color: var(--gris-texte-mute);
+  line-height: 1.25;
+}
+.institution-name strong {
+  display: block;
+  color: var(--gris-texte);
+  font-size: 1.05rem;
+}
+.app-title-block h1 {
+  font-size: 1.15rem;
+  margin: 0;
+  color: var(--bleu-france);
+}
+.app-title-block p {
+  margin: 0.1rem 0 0;
+  color: var(--gris-texte-mute);
+  font-size: 0.9rem;
+}
+
+.user-box {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+}
+.user-box img.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--gris-bordure);
+}
+
+/* ----- Boutons ----------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 0.92rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: var(--rayon);
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+.btn-primary {
+  background: var(--bleu-france);
+  color: var(--blanc);
+}
+.btn-primary:hover {
+  background: var(--bleu-france-hover);
+}
+.btn-secondary {
+  background: var(--blanc);
+  color: var(--bleu-france);
+  border-color: var(--bleu-france);
+}
+.btn-secondary:hover {
+  background: var(--bleu-france-light);
+}
+.btn-danger {
+  background: var(--blanc);
+  color: var(--rouge-marianne);
+  border-color: var(--rouge-marianne);
+}
+.btn-danger:hover {
+  background: #fdeeee;
+}
+.btn-sm {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.82rem;
+}
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ----- Onglets principaux ------------------------------------------------ */
+.tabs-nav {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  gap: 0.25rem;
+  padding: 0 1.5rem;
+  overflow-x: auto;
+}
+.tab-btn {
+  font-family: inherit;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 0.9rem 1rem;
+  font-size: 0.98rem;
+  font-weight: 500;
+  color: var(--gris-texte-mute);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.tab-btn:hover {
+  color: var(--bleu-france);
+  background: var(--gris-fond-alt);
+}
+.tab-btn.active {
+  color: var(--bleu-france);
+  border-bottom-color: var(--bleu-france);
+  font-weight: 700;
+}
+
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.view {
+  display: none;
+}
+.view.active {
+  display: block;
+}
+
+.view-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+.view-header h2 {
+  margin: 0;
+  color: var(--gris-texte);
+  font-size: 1.35rem;
+  border-left: 4px solid var(--rouge-marianne);
+  padding-left: 0.6rem;
+}
+.view-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.toolbar {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.input,
+select.input,
+textarea.input {
+  font-family: inherit;
+  font-size: 0.92rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--gris-bordure);
+  border-radius: var(--rayon);
+  background: var(--blanc);
+  color: var(--gris-texte);
+}
+.input:focus,
+select.input:focus,
+textarea.input:focus {
+  outline: 2px solid var(--bleu-france);
+  outline-offset: 1px;
+}
+.search-input {
+  min-width: 260px;
+  flex: 1;
+}
+
+/* ----- Annuaire : tableau -------------------------------------------------- */
+.table-wrap {
+  overflow-x: auto;
+  background: var(--blanc);
+  border: 1px solid var(--gris-bordure);
+  border-radius: var(--rayon);
+}
+table.annuaire-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+table.annuaire-table th {
+  text-align: left;
+  background: var(--gris-fond-alt);
+  color: var(--gris-texte);
+  font-weight: 700;
+  padding: 0.7rem 0.9rem;
+  border-bottom: 2px solid var(--gris-bordure);
+  white-space: nowrap;
+}
+table.annuaire-table td {
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid var(--gris-bordure);
+  vertical-align: middle;
+}
+table.annuaire-table tr:last-child td {
+  border-bottom: none;
+}
+table.annuaire-table tr:hover td {
+  background: var(--gris-fond-alt);
+}
+.cell-actions {
+  display: flex;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+.empty-state {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--gris-texte-mute);
+}
+
+/* ----- Ressources : groupes par thématique ---------------------------------- */
+.thematique-group {
+  margin-bottom: 1.75rem;
+}
+.thematique-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.05rem;
+  color: var(--bleu-france);
+  margin: 0 0 0.6rem;
+}
+.thematique-count {
+  background: var(--bleu-france-light);
+  color: var(--bleu-france);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  padding: 0.1rem 0.55rem;
+  font-weight: 700;
+}
+.resource-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.85rem;
+}
+.resource-card {
+  background: var(--blanc);
+  border: 1px solid var(--gris-bordure);
+  border-radius: var(--rayon);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  box-shadow: var(--ombre);
+}
+.resource-card__top {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+.resource-type-icon {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--rayon);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--blanc);
+}
+.resource-type-icon.type-pdf {
+  background: var(--rouge-marianne);
+}
+.resource-type-icon.type-zip {
+  background: var(--orange-alerte);
+}
+.resource-type-icon.type-lien {
+  background: var(--bleu-france);
+}
+.resource-card__title {
+  font-weight: 700;
+  font-size: 0.96rem;
+  margin: 0;
+}
+.resource-card__desc {
+  color: var(--gris-texte-mute);
+  font-size: 0.85rem;
+  margin: 0;
+}
+.resource-card__footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--gris-texte-mute);
+}
+
+/* ----- Personnes ressources : grille de thèmes --------------------------- */
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.theme-card {
+  background: var(--blanc);
+  border: 1px solid var(--gris-bordure);
+  border-radius: var(--rayon);
+  padding: 1.1rem 0.8rem;
+  text-align: center;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--gris-texte);
+  transition: all 0.15s ease;
+}
+.theme-card:hover {
+  border-color: var(--bleu-france);
+  box-shadow: var(--ombre);
+}
+.theme-card.selected {
+  background: var(--bleu-france);
+  color: var(--blanc);
+  border-color: var(--bleu-france);
+}
+.theme-card .count {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 400;
+  margin-top: 0.25rem;
+  color: inherit;
+  opacity: 0.75;
+}
+
+.contact-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.85rem;
+}
+.contact-card {
+  background: var(--blanc);
+  border: 1px solid var(--gris-bordure);
+  border-left: 4px solid var(--bleu-france);
+  border-radius: var(--rayon);
+  padding: 1rem;
+  box-shadow: var(--ombre);
+}
+.contact-card h3 {
+  margin: 0 0 0.15rem;
+  font-size: 1rem;
+}
+.contact-card .fonction {
+  color: var(--gris-texte-mute);
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+.contact-card dl {
+  margin: 0;
+  font-size: 0.85rem;
+}
+.contact-card dt {
+  font-weight: 600;
+  float: left;
+  clear: left;
+  width: 90px;
+  color: var(--gris-texte-mute);
+}
+.contact-card dd {
+  margin: 0 0 0.25rem 90px;
+}
+
+/* ----- Badges / tags ------------------------------------------------------- */
+.tag {
+  display: inline-block;
+  background: var(--bleu-france-light);
+  color: var(--bleu-france);
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+}
+
+/* ----- Modales ------------------------------------------------------------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(22, 22, 22, 0.55);
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 3vh 1rem;
+  overflow-y: auto;
+  z-index: 200;
+}
+.modal-overlay.open {
+  display: flex;
+}
+.modal {
+  background: var(--blanc);
+  border-radius: var(--rayon);
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+}
+.modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--gris-bordure);
+}
+.modal__header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+.modal__close {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: var(--gris-texte-mute);
+  line-height: 1;
+}
+.modal__body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--gris-bordure);
+}
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.form-field label {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+@media (max-width: 560px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+.field-hint {
+  font-size: 0.78rem;
+  color: var(--gris-texte-mute);
+}
+
+/* ----- Écran de connexion --------------------------------------------------- */
+.login-screen {
+  min-height: calc(100vh - 4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+.login-card {
+  background: var(--blanc);
+  border: 1px solid var(--gris-bordure);
+  border-radius: var(--rayon);
+  box-shadow: var(--ombre);
+  padding: 2.5rem 2rem;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+}
+.login-card h1 {
+  color: var(--bleu-france);
+  font-size: 1.3rem;
+  margin: 0.5rem 0;
+}
+.login-card p {
+  color: var(--gris-texte-mute);
+  font-size: 0.9rem;
+}
+.login-error {
+  background: var(--orange-alerte-bg);
+  color: var(--orange-alerte);
+  border-radius: var(--rayon);
+  padding: 0.75rem;
+  font-size: 0.85rem;
+  margin-top: 1rem;
+  text-align: left;
+}
+
+/* ----- Toast / notifications ------------------------------------------------ */
+.toast {
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  background: var(--gris-texte);
+  color: var(--blanc);
+  padding: 0.75rem 1.1rem;
+  border-radius: var(--rayon);
+  box-shadow: var(--ombre);
+  font-size: 0.88rem;
+  z-index: 300;
+  max-width: 340px;
+}
+.toast.error {
+  background: var(--rouge-marianne);
+}
+.toast.success {
+  background: var(--vert-succes);
+}
+
+/* ----- Pied de page ---------------------------------------------------------- */
+.app-footer {
+  border-top: 1px solid var(--gris-bordure);
+  background: var(--blanc);
+  margin-top: 2rem;
+}
+.app-footer__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.25rem 1.5rem;
+  font-size: 0.8rem;
+  color: var(--gris-texte-mute);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.hidden {
+  display: none !important;
+}

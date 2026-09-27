@@ -1,0 +1,20 @@
+rules_version = '2';
+
+// À coller dans la Console Firebase → Firestore Database → Règles.
+// Adaptez le(s) domaine(s) autorisé(s) ci-dessous (doit correspondre à
+// ALLOWED_EMAIL_DOMAINS dans assets/js/firebase-config.js).
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAcademicUser() {
+      return request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email.matches('.*@ac-creteil[.]fr$');
+    }
+
+    match /{document=**} {
+      allow read, write: if isAcademicUser();
+    }
+  }
+}

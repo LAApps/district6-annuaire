@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>District 6 — Personnels d'encadrement</title>
+  <meta name="description" content="Annuaire, ressources et réseau des personnes ressources du district 6 (Seine-Saint-Denis)." />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Aller au contenu</a>
+  <div class="tricolor-bar"><span class="bleu"></span><span class="blanc"></span><span class="rouge"></span></div>
+
+  <!-- ===================== Écran de connexion ===================== -->
+  <div id="login-screen" class="login-screen">
+    <div class="login-card">
+      <div class="marianne-mark" style="display:inline-block;border:none;padding:0;">
+        <span>RÉPUBLIQUE</span><span>FRANÇAISE</span>
+      </div>
+      <h1>District 6 — Seine-Saint-Denis</h1>
+      <p>Espace réservé aux personnels d'encadrement. Connectez-vous avec votre compte académique pour accéder à l'annuaire, aux ressources et au réseau des personnes ressources.</p>
+      <button id="btn-login" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:1rem;">
+        Se connecter avec Google
+      </button>
+      <div id="login-error" class="login-error hidden"></div>
+    </div>
+  </div>
+
+  <!-- ===================== Application ===================== -->
+  <div id="app-shell" class="hidden">
+    <header class="app-header">
+      <div class="app-header__inner">
+        <div class="institution-block">
+          <div class="marianne-mark">
+            <span>RÉPUBLIQUE</span><span>FRANÇAISE</span>
+          </div>
+          <div class="institution-name">
+            <strong>Académie de Créteil</strong>
+            Direction des services départementaux de l'éducation nationale
+          </div>
+        </div>
+        <div class="app-title-block">
+          <h1>District 6 — Seine-Saint-Denis</h1>
+          <p>Espace des personnels d'encadrement</p>
+        </div>
+        <div class="user-box">
+          <img id="user-avatar" class="avatar hidden" alt="" />
+          <span id="user-name"></span>
+          <button id="btn-logout" class="btn btn-secondary btn-sm">Déconnexion</button>
+        </div>
+      </div>
+      <nav class="tabs-nav" aria-label="Navigation principale">
+        <button class="tab-btn active" data-view="annuaire">Annuaire</button>
+        <button class="tab-btn" data-view="ressources">Ressources</button>
+        <button class="tab-btn" data-view="contacts">Personnes ressources</button>
+      </nav>
+    </header>
+
+    <main id="main-content">
+      <!-- ===================== Vue Annuaire ===================== -->
+      <section id="view-annuaire" class="view active">
+        <div class="view-header">
+          <h2>Annuaire du district</h2>
+          <div class="view-actions">
+            <button id="btn-annuaire-add" class="btn btn-primary">+ Ajouter une fiche</button>
+          </div>
+        </div>
+        <div class="toolbar">
+          <input id="annuaire-search" class="input search-input" type="search" placeholder="Rechercher (nom, prénom, fonction, établissement, mail)…" />
+        </div>
+        <div class="table-wrap">
+          <table class="annuaire-table">
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Fonction</th>
+                <th>Établissement</th>
+                <th>Portable</th>
+                <th>Ligne fixe</th>
+                <th>Mail</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="annuaire-tbody"></tbody>
+          </table>
+        </div>
+        <p id="annuaire-empty" class="empty-state hidden">Aucune fiche dans l'annuaire pour le moment.</p>
+      </section>
+
+      <!-- ===================== Vue Ressources ===================== -->
+      <section id="view-ressources" class="view">
+        <div class="view-header">
+          <h2>Zone de ressources</h2>
+          <div class="view-actions">
+            <button id="btn-contact-admin" class="btn btn-secondary">Contacter l'administrateur</button>
+            <button id="btn-ressource-add" class="btn btn-primary">+ Ajouter une ressource</button>
+          </div>
+        </div>
+        <div class="toolbar">
+          <input id="ressources-search" class="input search-input" type="search" placeholder="Rechercher une ressource…" />
+          <select id="ressources-filter-thematique" class="input"></select>
+        </div>
+        <div id="ressources-groups"></div>
+      </section>
+
+      <!-- ===================== Vue Personnes ressources ===================== -->
+      <section id="view-contacts" class="view">
+        <div class="view-header">
+          <h2>Réseau — trouver une personne ressource</h2>
+          <div class="view-actions">
+            <button id="btn-theme-add" class="btn btn-secondary">+ Ajouter un thème</button>
+            <button id="btn-personne-ressource-add" class="btn btn-primary">+ Ajouter une personne ressource</button>
+          </div>
+        </div>
+        <div id="theme-grid" class="theme-grid"></div>
+        <p id="contact-hint" class="empty-state">Sélectionnez un thème ci-dessus pour afficher la ou les personnes ressources associées.</p>
+        <div id="contact-list" class="contact-list"></div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <div class="app-footer__inner">
+        <span>Académie de Créteil — District 6 (Seine-Saint-Denis)</span>
+        <span>Application interne — usage réservé aux personnels d'encadrement</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ===================== Modale : fiche annuaire ===================== -->
+  <div id="modal-annuaire-overlay" class="modal-overlay">
+    <div class="modal">
+      <div class="modal__header">
+        <h3 id="modal-annuaire-title">Ajouter une fiche</h3>
+        <button id="modal-annuaire-close" class="modal__close" aria-label="Fermer">&times;</button>
+      </div>
+      <form id="form-annuaire">
+        <div class="modal__body">
+          <div class="form-row">
+            <div class="form-field">
+              <label for="f-nom">Nom *</label>
+              <input class="input" id="f-nom" name="nom" required />
+            </div>
+            <div class="form-field">
+              <label for="f-prenom">Prénom *</label>
+              <input class="input" id="f-prenom" name="prenom" required />
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="f-fonction">Fonction</label>
+            <input class="input" id="f-fonction" name="fonction" placeholder="Ex : Principal, IEN, Gestionnaire…" />
+          </div>
+          <div class="form-field">
+            <label for="f-etablissement">Établissement</label>
+            <input class="input" id="f-etablissement" name="etablissement" />
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="f-portable">Téléphone portable</label>
+              <input class="input" id="f-portable" name="portable" type="tel" />
+            </div>
+            <div class="form-field">
+              <label for="f-fixe">Ligne fixe</label>
+              <input class="input" id="f-fixe" name="fixe" type="tel" />
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="f-mail">Mail</label>
+            <input class="input" id="f-mail" name="mail" type="email" />
+          </div>
+        </div>
+        <div class="modal__footer">
+          <button type="button" id="btn-annuaire-delete" class="btn btn-danger hidden" style="margin-right:auto;">Supprimer</button>
+          <button type="button" id="btn-annuaire-cancel" class="btn btn-secondary">Annuler</button>
+          <button type="submit" class="btn btn-primary">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================== Modale : ressource ===================== -->
+  <div id="modal-ressource-overlay" class="modal-overlay">
+    <div class="modal">
+      <div class="modal__header">
+        <h3 id="modal-ressource-title">Ajouter une ressource</h3>
+        <button id="modal-ressource-close" class="modal__close" aria-label="Fermer">&times;</button>
+      </div>
+      <form id="form-ressource">
+        <div class="modal__body">
+          <div class="form-field">
+            <label for="r-titre">Titre *</label>
+            <input class="input" id="r-titre" name="titre" required />
+          </div>
+          <div class="form-field">
+            <label for="r-thematique">Thématique *</label>
+            <select class="input" id="r-thematique" name="thematique" required></select>
+          </div>
+          <div class="form-field">
+            <label>Type de ressource *</label>
+            <div style="display:flex;gap:1rem;">
+              <label style="font-weight:400;"><input type="radio" name="type" value="lien" checked /> Lien</label>
+              <label style="font-weight:400;"><input type="radio" name="type" value="pdf" /> PDF</label>
+              <label style="font-weight:400;"><input type="radio" name="type" value="zip" /> ZIP</label>
+            </div>
+          </div>
+          <div id="champ-ressource-lien" class="form-field">
+            <label for="r-url">URL du lien *</label>
+            <input class="input" id="r-url" name="url" type="url" placeholder="https://…" />
+          </div>
+          <div id="champ-ressource-fichier" class="form-field hidden">
+            <label for="r-fichier">Fichier *</label>
+            <input class="input" id="r-fichier" name="fichier" type="file" />
+            <p class="field-hint">Le fichier est stocké de façon sécurisée et un lien de téléchargement est généré automatiquement.</p>
+          </div>
+          <div class="form-field">
+            <label for="r-description">Description (optionnel)</label>
+            <textarea class="input" id="r-description" name="description" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal__footer">
+          <button type="button" id="btn-ressource-cancel" class="btn btn-secondary">Annuler</button>
+          <button type="submit" id="btn-ressource-submit" class="btn btn-primary">Ajouter</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================== Modale : nouveau thème ===================== -->
+  <div id="modal-theme-overlay" class="modal-overlay">
+    <div class="modal">
+      <div class="modal__header">
+        <h3>Ajouter un thème</h3>
+        <button id="modal-theme-close" class="modal__close" aria-label="Fermer">&times;</button>
+      </div>
+      <form id="form-theme">
+        <div class="modal__body">
+          <div class="form-field">
+            <label for="t-nom">Nom du thème *</label>
+            <input class="input" id="t-nom" name="nom" required placeholder="Ex : Relations avec les familles" />
+          </div>
+        </div>
+        <div class="modal__footer">
+          <button type="button" id="btn-theme-cancel" class="btn btn-secondary">Annuler</button>
+          <button type="submit" class="btn btn-primary">Ajouter</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================== Modale : nouvelle personne ressource ===================== -->
+  <div id="modal-personne-ressource-overlay" class="modal-overlay">
+    <div class="modal">
+      <div class="modal__header">
+        <h3>Ajouter une personne ressource</h3>
+        <button id="modal-personne-ressource-close" class="modal__close" aria-label="Fermer">&times;</button>
+      </div>
+      <form id="form-personne-ressource">
+        <div class="modal__body">
+          <div class="form-field">
+            <label for="pr-theme">Thème *</label>
+            <select class="input" id="pr-theme" name="themeId" required></select>
+          </div>
+          <div class="form-field">
+            <label for="pr-personne">Personne (issue de l'Annuaire) *</label>
+            <select class="input" id="pr-personne" name="annuaireId" required></select>
+            <p class="field-hint">La personne doit d'abord exister dans l'onglet Annuaire.</p>
+          </div>
+          <div class="form-field">
+            <label for="pr-note">Note (optionnel)</label>
+            <input class="input" id="pr-note" name="note" placeholder="Ex : disponible le matin uniquement" />
+          </div>
+        </div>
+        <div class="modal__footer">
+          <button type="button" id="btn-personne-ressource-cancel" class="btn btn-secondary">Annuler</button>
+          <button type="submit" class="btn btn-primary">Ajouter</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="assets/js/app.js"></script>
+</body>
+</html>
