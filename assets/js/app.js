@@ -6,7 +6,10 @@ import { login, logout, onUserChange } from "./auth.js";
 import { initAnnuaire } from "./annuaire.js";
 import { initRessources } from "./ressources.js";
 import { initContacts } from "./contacts.js";
+import { initImport } from "./import.js";
 import { toast } from "./utils.js";
+
+initImport();
 
 const loginScreen = document.getElementById("login-screen");
 const appShell = document.getElementById("app-shell");

@@ -7,6 +7,7 @@ import { RessourcesAPI, THEMATIQUES_RESSOURCES } from "./db.js";
 import { getCurrentUser } from "./auth.js";
 import { ADMIN_EMAIL } from "./firebase-config.js";
 import { escapeHtml, toast, openModal, closeModal, wireOverlayClose, formatDate } from "./utils.js";
+import { openImportModal } from "./import.js";
 
 let allResources = [];
 let searchTerm = "";
@@ -19,6 +20,7 @@ export async function initRessources() {
   els.search = document.getElementById("ressources-search");
   els.filter = document.getElementById("ressources-filter-thematique");
   els.addBtn = document.getElementById("btn-ressource-add");
+  els.importBtn = document.getElementById("btn-ressources-import");
   els.contactBtn = document.getElementById("btn-contact-admin");
   els.form = document.getElementById("form-ressource");
   els.typeRadios = els.form.querySelectorAll('input[name="type"]');
@@ -47,6 +49,7 @@ export async function initRessources() {
   });
 
   els.addBtn.addEventListener("click", () => openForm());
+  els.importBtn.addEventListener("click", () => openImportModal("ressources", loadAndRender));
   document.getElementById("btn-ressource-cancel").addEventListener("click", () => closeModal("modal-ressource-overlay"));
   document.getElementById("modal-ressource-close").addEventListener("click", () => closeModal("modal-ressource-overlay"));
 

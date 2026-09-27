@@ -62,6 +62,7 @@
         <div class="view-header">
           <h2>Annuaire du district</h2>
           <div class="view-actions">
+            <button id="btn-annuaire-import" class="btn btn-secondary">Importer un fichier Excel</button>
             <button id="btn-annuaire-add" class="btn btn-primary">+ Ajouter une fiche</button>
           </div>
         </div>
@@ -94,6 +95,7 @@
           <h2>Zone de ressources</h2>
           <div class="view-actions">
             <button id="btn-contact-admin" class="btn btn-secondary">Contacter l'administrateur</button>
+            <button id="btn-ressources-import" class="btn btn-secondary">Importer un fichier Excel</button>
             <button id="btn-ressource-add" class="btn btn-primary">+ Ajouter une ressource</button>
           </div>
         </div>
@@ -110,6 +112,7 @@
           <h2>Réseau — trouver une personne ressource</h2>
           <div class="view-actions">
             <button id="btn-theme-add" class="btn btn-secondary">+ Ajouter un thème</button>
+            <button id="btn-personnes-ressources-import" class="btn btn-secondary">Importer un fichier Excel</button>
             <button id="btn-personne-ressource-add" class="btn btn-primary">+ Ajouter une personne ressource</button>
           </div>
         </div>
@@ -278,6 +281,33 @@
     </div>
   </div>
 
+  <!-- ===================== Modale : import Excel (générique) ===================== -->
+  <div id="modal-import-overlay" class="modal-overlay">
+    <div class="modal">
+      <div class="modal__header">
+        <h3 id="modal-import-title">Importer un fichier Excel</h3>
+        <button id="modal-import-close" class="modal__close" aria-label="Fermer">&times;</button>
+      </div>
+      <div class="modal__body">
+        <p id="import-instructions" class="field-hint"></p>
+        <button type="button" id="btn-import-template" class="btn btn-secondary btn-sm" style="align-self:flex-start;">
+          Télécharger le modèle Excel
+        </button>
+        <div class="form-field">
+          <label for="import-file">Fichier Excel (.xlsx, .xls) ou CSV *</label>
+          <input class="input" id="import-file" type="file" accept=".xlsx,.xls,.csv" />
+        </div>
+        <div id="import-result" class="hidden"></div>
+      </div>
+      <div class="modal__footer">
+        <button type="button" id="btn-import-cancel" class="btn btn-secondary">Fermer</button>
+        <button type="button" id="btn-import-submit" class="btn btn-primary">Importer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SheetJS (lecture/écriture de fichiers Excel) — chargé en CDN, aucune installation requise -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script type="module" src="assets/js/app.js"></script>
 </body>
 </html>

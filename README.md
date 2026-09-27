@@ -5,6 +5,7 @@ Application web pour les personnels d'encadrement du **district 6 (Seine-Saint-D
 - **Annuaire** : nom, prénom, fonction, établissement, portable, fixe, mail. Ajout et modification des fiches.
 - **Ressources** : liens, PDF, ZIP classés par thématique (budget, DHG, management, montage de projet, IA, évaluations, syndicats, textes officiels, bulletins académiques, bulletins départementaux, courriers types, documents types). Téléchargement, ajout de ressource, contact administrateur.
 - **Personnes ressources** : recherche par thème (budget, DHG, EDT, IA, bureautique/informatique, RH, gestion de crises, CPS, EVARS, évaluations nationales) → personnes à contacter (données reprises de l'Annuaire). Ajout de thème et de personne ressource.
+- **Import Excel** : chaque onglet dispose d'un bouton « Importer un fichier Excel » (+ un bouton pour télécharger un modèle vierge) permettant d'alimenter en masse l'annuaire, les ressources ou les personnes ressources depuis un fichier `.xlsx`/`.xls`/`.csv`.
 
 Charte graphique : identité visuelle de l'État / Éducation nationale (bleu France `#000091`, rouge Marianne `#E1000F`, typographie Marianne).
 
@@ -76,6 +77,18 @@ N'oubliez pas d'ajouter cette URL (domaine `<votre-utilisateur>.github.io`) dans
 | `ressources` | `titre`, `thematique`, `type` (`lien`\|`pdf`\|`zip`), `url`, `storagePath`, `description`, `ajoutePar` |
 | `themesReseau` | `nom` |
 | `personnesRessources` | `themeId` (→ `themesReseau`), `annuaireId` (→ `annuaire`), `note` |
+
+## Import Excel
+
+Le bouton **Importer un fichier Excel** (présent sur les trois onglets) lit le fichier entièrement dans le navigateur via la librairie [SheetJS](https://sheetjs.com/) (chargée en CDN, aucune donnée n'est envoyée à un tiers) puis écrit chaque ligne valide dans Firestore. Un bouton **Télécharger le modèle Excel** génère un fichier d'exemple avec les bons en-têtes. Les noms de colonnes sont reconnus quelle que soit la casse ou les accents (« Prénom », « prenom », « PRENOM » sont équivalents).
+
+| Onglet | Colonnes attendues | Règles |
+|---|---|---|
+| Annuaire | Nom, Prénom, Fonction, Établissement, Portable, Fixe, Mail | Nom et Prénom obligatoires |
+| Ressources | Titre, Thématique, Type, URL, Description | Titre + Thématique (doit correspondre à une thématique existante) obligatoires. Type = `lien`, `pdf` ou `zip` (par défaut `lien` si une URL est fournie). **L'import ne permet pas de joindre un fichier** : pour un PDF/ZIP, indiquez l'URL d'un fichier déjà hébergé ailleurs (Drive, site académique…). |
+| Personnes ressources | Thème, Nom, Prénom, Note | Le couple Nom + Prénom doit correspondre exactement à une fiche déjà présente dans l'Annuaire (importer l'annuaire en premier si besoin). Un thème inconnu est créé automatiquement. |
+
+Après l'import, un rapport indique le nombre de lignes importées et détaille, ligne par ligne, les erreurs éventuelles (champ manquant, thématique inconnue, personne introuvable…).
 
 ## Limites connues / pistes d'évolution
 

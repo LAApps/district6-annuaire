@@ -5,6 +5,7 @@
 
 import { AnnuaireAPI, ThemesReseauAPI, PersonnesRessourcesAPI } from "./db.js";
 import { escapeHtml, toast, openModal, closeModal, wireOverlayClose } from "./utils.js";
+import { openImportModal } from "./import.js";
 
 let themes = [];
 let liens = []; // personnesRessources : {id, themeId, annuaireId, note}
@@ -19,6 +20,7 @@ export async function initContacts() {
   els.hint = document.getElementById("contact-hint");
   els.addThemeBtn = document.getElementById("btn-theme-add");
   els.addLienBtn = document.getElementById("btn-personne-ressource-add");
+  els.importBtn = document.getElementById("btn-personnes-ressources-import");
 
   els.formTheme = document.getElementById("form-theme");
   els.formLien = document.getElementById("form-personne-ressource");
@@ -49,6 +51,7 @@ export async function initContacts() {
   });
 
   els.addLienBtn.addEventListener("click", () => openLienForm());
+  els.importBtn.addEventListener("click", () => openImportModal("personnes-ressources", refreshContacts));
   document.getElementById("btn-personne-ressource-cancel").addEventListener("click", () =>
     closeModal("modal-personne-ressource-overlay")
   );

@@ -4,6 +4,7 @@
 
 import { AnnuaireAPI } from "./db.js";
 import { escapeHtml, toast, openModal, closeModal, wireOverlayClose } from "./utils.js";
+import { openImportModal } from "./import.js";
 
 let allEntries = [];
 let searchTerm = "";
@@ -16,6 +17,7 @@ export async function initAnnuaire() {
   els.empty = document.getElementById("annuaire-empty");
   els.search = document.getElementById("annuaire-search");
   els.addBtn = document.getElementById("btn-annuaire-add");
+  els.importBtn = document.getElementById("btn-annuaire-import");
   els.form = document.getElementById("form-annuaire");
   els.modalTitle = document.getElementById("modal-annuaire-title");
   els.deleteBtn = document.getElementById("btn-annuaire-delete");
@@ -28,6 +30,7 @@ export async function initAnnuaire() {
   });
 
   els.addBtn.addEventListener("click", () => openForm(null));
+  els.importBtn.addEventListener("click", () => openImportModal("annuaire", loadAndRender));
 
   els.form.addEventListener("submit", async (e) => {
     e.preventDefault();
