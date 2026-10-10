@@ -2,12 +2,14 @@
 // Onglet Annuaire — liste, recherche, ajout et modification des fiches.
 // ============================================================================
 
-import { AnnuaireAPI } from "./db.js";
+import { AnnuaireAPI, ThemesReseauAPI, PersonnesRessourcesAPI } from "./db.js";
 import { escapeHtml, toast, openModal, closeModal, wireOverlayClose } from "./utils.js";
 import { openImportModal } from "./import.js";
 import { isCurrentUserAdmin, isOwnAnnuaireEntry, getCurrentUser } from "./auth.js";
 
 let allEntries = [];
+let themes = [];
+let personnesRessources = [];
 let searchTerm = "";
 let editingId = null;
 
@@ -22,6 +24,7 @@ export async function initAnnuaire() {
   els.form = document.getElementById("form-annuaire");
   els.modalTitle = document.getElementById("modal-annuaire-title");
   els.deleteBtn = document.getElementById("btn-annuaire-delete");
+  els.themesList = document.getElementById("f-themes-list");
 
   wireOverlayClose("modal-annuaire-overlay");
 
@@ -55,7 +58,7 @@ export async function initAnnuaire() {
     }
   });
 
-  await loadAndRender();
+  await Promise.all([loadAndRender(), loadThemesAndLinks()]);
 }
 
 async function loadAndRender() {
@@ -66,6 +69,19 @@ async function loadAndRender() {
     allEntries = [];
   }
   render();
+}
+
+async function loadThemesAndLinks() {
+  try {
+    themes = isCurrentUserAdmin() ? await ThemesReseauAPI.ensureDefaults() : await ThemesReseauAPI.list();
+  } catch (err) {
+    themes = [];
+  }
+  try {
+    personnesRessources = await PersonnesRessourcesAPI.list();
+  } catch (err) {
+    personnesRessources = [];
+  }
 }
 
 function matches(entry, term) {
@@ -133,7 +149,37 @@ function openForm(entry) {
     mailInput.readOnly = false;
   }
 
+  const linkedThemeIds = entry ? personnesRessources.filter((l) => l.annuaireId === entry.id).map((l) => l.themeId) : [];
+  els.themesList.innerHTML = themes
+    .map(
+      (t) => `
+      <label style="font-weight:400;display:flex;gap:.4rem;align-items:center;">
+        <input type="checkbox" value="${t.id}" ${linkedThemeIds.includes(t.id) ? "checked" : ""} />
+        ${escapeHtml(t.nom)}
+      </label>`
+    )
+    .join("");
+  if (themes.length === 0) {
+    els.themesList.innerHTML = `<p class="field-hint" style="margin:0;">Aucun thème disponible pour le moment.</p>`;
+  }
+
   openModal("modal-annuaire-overlay");
+}
+
+async function syncPersonnesRessources(annuaireId) {
+  const checkedThemeIds = Array.from(els.themesList.querySelectorAll('input[type="checkbox"]:checked')).map((cb) => cb.value);
+  const existingLinks = personnesRessources.filter((l) => l.annuaireId === annuaireId);
+  const existingThemeIds = existingLinks.map((l) => l.themeId);
+
+  const toAdd = checkedThemeIds.filter((id) => !existingThemeIds.includes(id));
+  const toRemove = existingLinks.filter((l) => !checkedThemeIds.includes(l.themeId));
+
+  for (const themeId of toAdd) {
+    await PersonnesRessourcesAPI.add({ themeId, annuaireId, note: "" });
+  }
+  for (const link of toRemove) {
+    await PersonnesRessourcesAPI.remove(link.id);
+  }
 }
 
 async function saveForm() {
@@ -146,15 +192,21 @@ async function saveForm() {
     return;
   }
   try {
+    let annuaireId = editingId;
     if (editingId) {
       await AnnuaireAPI.update(editingId, data);
-      toast("Fiche mise à jour.", "success");
     } else {
-      await AnnuaireAPI.add(data);
-      toast("Fiche ajoutée.", "success");
+      const ref = await AnnuaireAPI.add(data);
+      annuaireId = ref.id;
     }
+    try {
+      await syncPersonnesRessources(annuaireId);
+    } catch (err) {
+      toast("Fiche enregistrée, mais erreur sur les thèmes personne ressource : " + err.message, "error");
+    }
+    toast(editingId ? "Fiche mise à jour." : "Fiche ajoutée.", "success");
     closeModal("modal-annuaire-overlay");
-    await loadAndRender();
+    await Promise.all([loadAndRender(), loadThemesAndLinks()]);
   } catch (err) {
     toast("Erreur lors de l'enregistrement : " + err.message, "error");
   }

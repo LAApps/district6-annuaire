@@ -238,6 +238,11 @@
             <label for="f-mail">Mail</label>
             <input class="input" id="f-mail" name="mail" type="email" />
           </div>
+          <div class="form-field">
+            <label>Personne ressource pour les thèmes (optionnel)</label>
+            <div id="f-themes-list" style="display:flex;flex-direction:column;gap:.4rem;max-height:160px;overflow-y:auto;border:1px solid var(--gris-bordure);border-radius:var(--rayon);padding:.6rem;"></div>
+            <p class="field-hint">Cochez les thèmes pour lesquels cette personne apparaîtra dans l'onglet « Personnes ressources ».</p>
+          </div>
         </div>
         <div class="modal__footer">
           <button type="button" id="btn-annuaire-delete" class="btn btn-danger hidden" style="margin-right:auto;">Supprimer</button>
