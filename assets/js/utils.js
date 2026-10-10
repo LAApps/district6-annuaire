@@ -49,6 +49,19 @@ export async function sha256Hex(str) {
     .join("");
 }
 
+// Nom / établissement : toujours en majuscules.
+export function toUpperFr(str) {
+  return String(str || "").toUpperCase();
+}
+
+// Prénom : première lettre de chaque mot en majuscule, le reste en
+// minuscules ("jean-pierre" -> "Jean-Pierre", "marie claire" -> "Marie Claire").
+export function capitalizeWords(str) {
+  return String(str || "")
+    .toLowerCase()
+    .replace(/(^|[^\p{L}])(\p{L})/gu, (_, sep, letter) => sep + letter.toUpperCase());
+}
+
 export function humanFileSize(bytes) {
   if (!bytes && bytes !== 0) return "";
   const units = ["o", "Ko", "Mo", "Go"];

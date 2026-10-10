@@ -12,7 +12,7 @@ import {
   THEMATIQUES_RESSOURCES,
   VILLES_DISTRICT,
 } from "./db.js";
-import { toast, openModal, closeModal, escapeHtml } from "./utils.js";
+import { toast, openModal, closeModal, escapeHtml, toUpperFr, capitalizeWords } from "./utils.js";
 
 let currentType = null;
 let onImportedCallback = null;
@@ -196,8 +196,8 @@ async function importAnnuaire(rows) {
   const report = { total: rows.length, added: 0, errors: [] };
   for (let i = 0; i < rows.length; i++) {
     const n = normalizeRow(rows[i]);
-    const nom = pick(n, ["nom"]);
-    const prenom = pick(n, ["prenom"]);
+    const nom = toUpperFr(pick(n, ["nom"]));
+    const prenom = capitalizeWords(pick(n, ["prenom"]));
     if (!nom || !prenom) {
       report.errors.push({ row: i + 2, message: "Nom et Prénom sont obligatoires." });
       continue;
@@ -219,7 +219,7 @@ async function importAnnuaire(rows) {
       nom,
       prenom,
       fonction: pick(n, ["fonction"]),
-      etablissement: pick(n, ["etablissement"]),
+      etablissement: toUpperFr(pick(n, ["etablissement"])),
       ville,
       portable: pick(n, ["portable", "telephoneportable", "mobile", "tel", "telephone"]),
       fixe: pick(n, ["fixe", "lignefixe", "telephonefixe"]),

@@ -3,7 +3,7 @@
 // ============================================================================
 
 import { AnnuaireAPI, ThemesReseauAPI, PersonnesRessourcesAPI, VILLES_DISTRICT } from "./db.js";
-import { escapeHtml, toast, openModal, closeModal, wireOverlayClose } from "./utils.js";
+import { escapeHtml, toast, openModal, closeModal, wireOverlayClose, toUpperFr, capitalizeWords } from "./utils.js";
 import { openImportModal } from "./import.js";
 import { isCurrentUserAdmin, isOwnAnnuaireEntry, getCurrentUser } from "./auth.js";
 
@@ -233,6 +233,9 @@ async function saveForm() {
   for (const field of ["nom", "prenom", "fonction", "etablissement", "ville", "portable", "fixe", "mail"]) {
     data[field] = els.form.elements[field].value.trim();
   }
+  data.nom = toUpperFr(data.nom);
+  data.prenom = capitalizeWords(data.prenom);
+  data.etablissement = toUpperFr(data.etablissement);
   if (!data.nom || !data.prenom) {
     toast("Le nom et le prénom sont obligatoires.", "error");
     return;
