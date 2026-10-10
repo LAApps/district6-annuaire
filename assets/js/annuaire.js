@@ -3,7 +3,17 @@
 // ============================================================================
 
 import { AnnuaireAPI, ThemesReseauAPI, PersonnesRessourcesAPI, VILLES_DISTRICT } from "./db.js";
-import { escapeHtml, toast, openModal, closeModal, wireOverlayClose, toUpperFr, capitalizeWords } from "./utils.js";
+import {
+  escapeHtml,
+  toast,
+  openModal,
+  closeModal,
+  wireOverlayClose,
+  toUpperFr,
+  capitalizeWords,
+  capitalizeFirst,
+  telHref,
+} from "./utils.js";
 import { openImportModal } from "./import.js";
 import { isCurrentUserAdmin, isOwnAnnuaireEntry, getCurrentUser } from "./auth.js";
 
@@ -130,15 +140,15 @@ function render() {
     .map(
       (e) => `
       <tr data-id="${e.id}">
-        <td>${escapeHtml(e.nom)}</td>
-        <td>${escapeHtml(e.prenom)}</td>
-        <td>${escapeHtml(e.fonction)}</td>
-        <td>${escapeHtml(e.etablissement)}</td>
-        <td>${escapeHtml(e.ville)}</td>
-        <td>${escapeHtml(e.portable)}</td>
-        <td>${escapeHtml(e.fixe)}</td>
-        <td>${e.mail ? `<a href="mailto:${escapeHtml(e.mail)}">${escapeHtml(e.mail)}</a>` : ""}</td>
-        <td class="cell-actions">
+        <td data-label="Nom">${escapeHtml(e.nom)}</td>
+        <td data-label="Prénom">${escapeHtml(e.prenom)}</td>
+        <td data-label="Fonction">${escapeHtml(e.fonction)}</td>
+        <td data-label="Établissement">${escapeHtml(e.etablissement)}</td>
+        <td data-label="Ville">${escapeHtml(e.ville)}</td>
+        <td data-label="Portable">${e.portable ? `<a href="${telHref(e.portable)}">${escapeHtml(e.portable)}</a>` : ""}</td>
+        <td data-label="Ligne fixe">${e.fixe ? `<a href="${telHref(e.fixe)}">${escapeHtml(e.fixe)}</a>` : ""}</td>
+        <td data-label="Mail">${e.mail ? `<a href="mailto:${escapeHtml(e.mail)}">${escapeHtml(e.mail)}</a>` : ""}</td>
+        <td data-label="Actions" class="cell-actions">
           ${
             admin || isOwnAnnuaireEntry(e)
               ? `<button class="btn btn-secondary btn-sm" data-action="edit" data-id="${e.id}">Modifier</button>`
@@ -236,6 +246,7 @@ async function saveForm() {
   data.nom = toUpperFr(data.nom);
   data.prenom = capitalizeWords(data.prenom);
   data.etablissement = toUpperFr(data.etablissement);
+  data.fonction = capitalizeFirst(data.fonction);
   if (!data.nom || !data.prenom) {
     toast("Le nom et le prénom sont obligatoires.", "error");
     return;

@@ -62,6 +62,22 @@ export function capitalizeWords(str) {
     .replace(/(^|[^\p{L}])(\p{L})/gu, (_, sep, letter) => sep + letter.toUpperCase());
 }
 
+// Première lettre en majuscule, le reste inchangé (fonction, titre,
+// description, service…) — règle générale appliquée à toutes les colonnes
+// texte de l'application.
+export function capitalizeFirst(str) {
+  const s = String(str || "").trim();
+  if (!s) return s;
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+// Construit un lien "tel:" utilisable sur mobile (et sur ordinateur avec un
+// logiciel de téléphonie) à partir d'un numéro saisi avec espaces/points/tirets.
+export function telHref(str) {
+  const digits = String(str || "").replace(/[^\d+]/g, "");
+  return digits ? `tel:${digits}` : "";
+}
+
 export function humanFileSize(bytes) {
   if (!bytes && bytes !== 0) return "";
   const units = ["o", "Ko", "Mo", "Go"];

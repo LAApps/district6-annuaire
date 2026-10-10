@@ -350,6 +350,62 @@ table.annuaire-table tr:hover td {
   color: var(--gris-texte-mute);
 }
 
+/* ----- Tableaux : vue "carte" empilée sur mobile (pas de défilement horizontal) --- */
+@media (max-width: 720px) {
+  .table-wrap {
+    overflow-x: visible;
+    border: none;
+    background: none;
+  }
+  table.annuaire-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  table.annuaire-table,
+  table.annuaire-table tbody,
+  table.annuaire-table tr,
+  table.annuaire-table td {
+    display: block;
+    width: 100%;
+  }
+  table.annuaire-table tr {
+    background: var(--blanc);
+    border: 1px solid var(--gris-bordure);
+    border-radius: var(--rayon);
+    margin-bottom: 0.75rem;
+    padding: 0.3rem 0.9rem;
+  }
+  table.annuaire-table td {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--gris-fond-alt);
+    word-break: break-word;
+  }
+  table.annuaire-table td:last-child {
+    border-bottom: none;
+  }
+  table.annuaire-table td::before {
+    content: attr(data-label);
+    flex: none;
+    width: 38%;
+    font-weight: 700;
+    font-size: 0.75rem;
+    color: var(--gris-texte-mute);
+  }
+  table.annuaire-table td.cell-actions {
+    flex-wrap: wrap;
+  }
+  table.annuaire-table td.cell-actions::before {
+    display: none;
+  }
+}
+
 /* ----- Ressources : groupes par thématique ---------------------------------- */
 .thematique-group {
   margin-bottom: 1.75rem;

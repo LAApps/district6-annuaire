@@ -5,7 +5,7 @@
 
 import { ContactsDsdenAPI } from "./db.js";
 import { isCurrentUserAdmin } from "./auth.js";
-import { escapeHtml, toast, openModal, closeModal, wireOverlayClose } from "./utils.js";
+import { escapeHtml, toast, openModal, closeModal, wireOverlayClose, capitalizeFirst, telHref } from "./utils.js";
 import { openImportModal } from "./import.js";
 
 let allContacts = [];
@@ -87,13 +87,13 @@ function render() {
     .map(
       (c) => `
       <tr data-id="${c.id}">
-        <td>${escapeHtml(c.service)}</td>
-        <td>${escapeHtml(c.nom)}</td>
-        <td>${escapeHtml(c.prenom)}</td>
-        <td>${escapeHtml(c.fonction)}</td>
-        <td>${escapeHtml(c.telephone)}</td>
-        <td>${c.mail ? `<a href="mailto:${escapeHtml(c.mail)}">${escapeHtml(c.mail)}</a>` : ""}</td>
-        <td class="cell-actions">
+        <td data-label="Service">${escapeHtml(c.service)}</td>
+        <td data-label="Nom">${escapeHtml(c.nom)}</td>
+        <td data-label="Prénom">${escapeHtml(c.prenom)}</td>
+        <td data-label="Fonction">${escapeHtml(c.fonction)}</td>
+        <td data-label="Téléphone">${c.telephone ? `<a href="${telHref(c.telephone)}">${escapeHtml(c.telephone)}</a>` : ""}</td>
+        <td data-label="Mail">${c.mail ? `<a href="mailto:${escapeHtml(c.mail)}">${escapeHtml(c.mail)}</a>` : ""}</td>
+        <td data-label="Actions" class="cell-actions">
           ${admin ? `<button class="btn btn-secondary btn-sm" data-action="edit" data-id="${c.id}">Modifier</button>` : ""}
         </td>
       </tr>`
@@ -127,6 +127,10 @@ async function saveForm() {
   for (const field of ["service", "nom", "prenom", "fonction", "telephone", "mail"]) {
     data[field] = els.form.elements[field].value.trim();
   }
+  data.service = capitalizeFirst(data.service);
+  data.nom = capitalizeFirst(data.nom);
+  data.prenom = capitalizeFirst(data.prenom);
+  data.fonction = capitalizeFirst(data.fonction);
   if (!data.service && !data.nom) {
     toast("Merci de renseigner au moins le service ou le nom.", "error");
     return;

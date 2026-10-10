@@ -6,7 +6,7 @@
 import { RessourcesAPI, THEMATIQUES_RESSOURCES } from "./db.js";
 import { getCurrentUser, isCurrentUserAdmin } from "./auth.js";
 import { ADMIN_EMAIL } from "./firebase-config.js";
-import { escapeHtml, toast, openModal, closeModal, wireOverlayClose, formatDate } from "./utils.js";
+import { escapeHtml, toast, openModal, closeModal, wireOverlayClose, formatDate, capitalizeFirst } from "./utils.js";
 import { openImportModal } from "./import.js";
 
 let allResources = [];
@@ -175,11 +175,11 @@ function openForm() {
 }
 
 async function saveForm() {
-  const titre = els.form.elements["titre"].value.trim();
+  const titre = capitalizeFirst(els.form.elements["titre"].value.trim());
   const thematique = els.form.elements["thematique"].value;
   const type = els.form.elements["type"].value;
   const url = els.form.elements["url"].value.trim();
-  const description = els.form.elements["description"].value.trim();
+  const description = capitalizeFirst(els.form.elements["description"].value.trim());
 
   if (!titre || !type) {
     toast("Le titre et le type de ressource sont obligatoires.", "error");

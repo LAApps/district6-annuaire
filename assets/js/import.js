@@ -12,7 +12,7 @@ import {
   THEMATIQUES_RESSOURCES,
   VILLES_DISTRICT,
 } from "./db.js";
-import { toast, openModal, closeModal, escapeHtml, toUpperFr, capitalizeWords } from "./utils.js";
+import { toast, openModal, closeModal, escapeHtml, toUpperFr, capitalizeWords, capitalizeFirst } from "./utils.js";
 
 let currentType = null;
 let onImportedCallback = null;
@@ -218,7 +218,7 @@ async function importAnnuaire(rows) {
     const data = {
       nom,
       prenom,
-      fonction: pick(n, ["fonction"]),
+      fonction: capitalizeFirst(pick(n, ["fonction"])),
       etablissement: toUpperFr(pick(n, ["etablissement"])),
       ville,
       portable: pick(n, ["portable", "telephoneportable", "mobile", "tel", "telephone"]),
@@ -246,11 +246,11 @@ async function importRessources(rows) {
   const report = { total: rows.length, added: 0, errors: [] };
   for (let i = 0; i < rows.length; i++) {
     const n = normalizeRow(rows[i]);
-    const titre = pick(n, ["titre"]);
+    const titre = capitalizeFirst(pick(n, ["titre"]));
     const thematiqueRaw = pick(n, ["thematique"]);
     const url = pick(n, ["url", "lien"]);
     let type = pick(n, ["type"]).toLowerCase();
-    const description = pick(n, ["description"]);
+    const description = capitalizeFirst(pick(n, ["description"]));
 
     if (!titre) {
       report.errors.push({ row: i + 2, message: "Le titre est obligatoire." });
@@ -293,7 +293,7 @@ async function importPersonnesRessources(rows) {
     const themeNom = pick(n, ["theme"]);
     const nom = pick(n, ["nom"]);
     const prenom = pick(n, ["prenom"]);
-    const note = pick(n, ["note"]);
+    const note = capitalizeFirst(pick(n, ["note"]));
 
     if (!themeNom || !nom || !prenom) {
       report.errors.push({ row: i + 2, message: "Thème, Nom et Prénom sont obligatoires." });
@@ -307,8 +307,9 @@ async function importPersonnesRessources(rows) {
     let theme = themeMap.get(normalizeKey(themeNom));
     if (!theme) {
       try {
-        const ref = await ThemesReseauAPI.add(themeNom);
-        theme = { id: ref.id, nom: themeNom };
+        const themeNomFormate = capitalizeFirst(themeNom);
+        const ref = await ThemesReseauAPI.add(themeNomFormate);
+        theme = { id: ref.id, nom: themeNomFormate };
         themeMap.set(normalizeKey(themeNom), theme);
       } catch (err) {
         report.errors.push({ row: i + 2, message: "Impossible de créer le thème : " + err.message });
@@ -330,8 +331,8 @@ async function importContactsDsden(rows) {
   const report = { total: rows.length, added: 0, errors: [] };
   for (let i = 0; i < rows.length; i++) {
     const n = normalizeRow(rows[i]);
-    const service = pick(n, ["service"]);
-    const nom = pick(n, ["nom"]);
+    const service = capitalizeFirst(pick(n, ["service"]));
+    const nom = capitalizeFirst(pick(n, ["nom"]));
     if (!service && !nom) {
       report.errors.push({ row: i + 2, message: "Le Service ou le Nom est obligatoire." });
       continue;
@@ -339,8 +340,8 @@ async function importContactsDsden(rows) {
     const data = {
       service,
       nom,
-      prenom: pick(n, ["prenom"]),
-      fonction: pick(n, ["fonction"]),
+      prenom: capitalizeFirst(pick(n, ["prenom"])),
+      fonction: capitalizeFirst(pick(n, ["fonction"])),
       telephone: pick(n, ["telephone", "tel", "telephonefixe", "portable"]),
       mail: pick(n, ["mail", "email", "courriel"]),
     };

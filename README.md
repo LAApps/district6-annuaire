@@ -9,6 +9,7 @@ Application web pour les personnels d'encadrement du **district 6 (Seine-Saint-D
 - **Contacts DSDEN/Rectorat** : annuaire institutionnel (service, nom, prénom, fonction, téléphone, mail). Consultation pour tous ; ajout, modification, suppression et import Excel réservés aux administrateurs.
 - **Import Excel** : les onglets Annuaire, Ressources, Personnes ressources et Contacts DSDEN/Rectorat disposent d'un bouton « Importer un fichier Excel » (+ un bouton pour télécharger un modèle vierge) permettant d'alimenter en masse les données depuis un fichier `.xlsx`/`.xls`/`.csv`.
 - **Mot de passe oublié en libre-service** : à la création du compte, chacun définit une question secrète. En cas d'oubli du mot de passe, il suffit de répondre correctement à sa question pour en choisir un nouveau, sans intervention d'un administrateur. Nécessite une petite fonction serveur (Vercel, gratuit) — voir la section dédiée plus bas.
+- **Confort d'utilisation** : sur mobile, les tableaux (Annuaire, Contacts DSDEN/Rectorat) s'affichent en liste de fiches empilées plutôt qu'en tableau à faire défiler horizontalement. Les numéros de téléphone sont cliquables pour appeler directement depuis le téléphone. Les champs texte (nom, fonction, établissement, titre, service…) sont automatiquement mis en forme avec une majuscule (nom et établissement de l'Annuaire entièrement en majuscules, le reste avec une majuscule initiale).
 
 Charte graphique : identité visuelle de l'État / Éducation nationale (bleu France `#000091`, rouge Marianne `#E1000F`, typographie Marianne).
 

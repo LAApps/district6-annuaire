@@ -4,7 +4,7 @@
 // ============================================================================
 
 import { AnnuaireAPI, ThemesReseauAPI, PersonnesRessourcesAPI } from "./db.js";
-import { escapeHtml, toast, openModal, closeModal, wireOverlayClose } from "./utils.js";
+import { escapeHtml, toast, openModal, closeModal, wireOverlayClose, capitalizeFirst, telHref } from "./utils.js";
 import { openImportModal } from "./import.js";
 import { isCurrentUserAdmin, isOwnAnnuaireEntry } from "./auth.js";
 
@@ -44,7 +44,7 @@ export async function initContacts() {
 
   els.formTheme.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const nom = els.formTheme.elements["nom"].value.trim();
+    const nom = capitalizeFirst(els.formTheme.elements["nom"].value.trim());
     if (!nom) return;
     try {
       await ThemesReseauAPI.add(nom);
@@ -70,7 +70,7 @@ export async function initContacts() {
     e.preventDefault();
     const themeId = els.formLien.elements["themeId"].value;
     const annuaireId = els.formLien.elements["annuaireId"].value;
-    const note = els.formLien.elements["note"].value.trim();
+    const note = capitalizeFirst(els.formLien.elements["note"].value.trim());
     if (!themeId || !annuaireId) {
       toast("Merci de choisir un thème et une personne.", "error");
       return;
@@ -158,8 +158,8 @@ function render() {
           <h3>${escapeHtml(p.prenom)} ${escapeHtml(p.nom)}</h3>
           <p class="fonction">${escapeHtml(p.fonction)}${p.etablissement ? " — " + escapeHtml(p.etablissement) : ""}</p>
           <dl>
-            ${p.portable ? `<dt>Portable</dt><dd>${escapeHtml(p.portable)}</dd>` : ""}
-            ${p.fixe ? `<dt>Fixe</dt><dd>${escapeHtml(p.fixe)}</dd>` : ""}
+            ${p.portable ? `<dt>Portable</dt><dd><a href="${telHref(p.portable)}">${escapeHtml(p.portable)}</a></dd>` : ""}
+            ${p.fixe ? `<dt>Fixe</dt><dd><a href="${telHref(p.fixe)}">${escapeHtml(p.fixe)}</a></dd>` : ""}
             ${p.mail ? `<dt>Mail</dt><dd><a href="mailto:${escapeHtml(p.mail)}">${escapeHtml(p.mail)}</a></dd>` : ""}
           </dl>
           ${l.note ? `<p class="field-hint" style="margin-top:.5rem;">${escapeHtml(l.note)}</p>` : ""}

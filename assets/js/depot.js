@@ -14,7 +14,7 @@ import {
   MAX_FILE_SIZE_LABEL,
   ACCEPTED_FILE_EXTENSIONS,
 } from "./cloudinary-config.js";
-import { escapeHtml, toast, openModal, closeModal, wireOverlayClose, formatDate, humanFileSize } from "./utils.js";
+import { escapeHtml, toast, openModal, closeModal, wireOverlayClose, formatDate, humanFileSize, capitalizeFirst } from "./utils.js";
 
 let allDocuments = [];
 let categories = [];
@@ -70,7 +70,7 @@ export async function initDepot() {
   document.getElementById("modal-depot-categorie-close").addEventListener("click", () => closeModal("modal-depot-categorie-overlay"));
   els.formCategorie.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const nom = els.formCategorie.elements["nom"].value.trim();
+    const nom = capitalizeFirst(els.formCategorie.elements["nom"].value.trim());
     if (!nom) return;
     try {
       await CategoriesDepotAPI.add(nom);
@@ -258,10 +258,10 @@ async function uploadToCloudinary(file) {
 }
 
 async function saveForm() {
-  const titre = els.form.elements["titre"].value.trim();
+  const titre = capitalizeFirst(els.form.elements["titre"].value.trim());
   const categorie = els.form.elements["categorie"].value;
   const type = els.form.elements["depotType"].value;
-  const description = els.form.elements["description"].value.trim();
+  const description = capitalizeFirst(els.form.elements["description"].value.trim());
 
   if (!titre || !categorie) {
     toast("Le titre et la catégorie sont obligatoires.", "error");
