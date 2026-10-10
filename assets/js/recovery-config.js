@@ -6,4 +6,4 @@
 
 // URL de base du projet Vercel (sans slash final), ex :
 // "https://district6-annuaire.vercel.app"
-export const RECOVERY_API_BASE_URL = "VOTRE_URL_VERCEL";
+export const RECOVERY_API_BASE_URL = "https://district6-annuaire.vercel.app";
