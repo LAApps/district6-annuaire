@@ -8,3 +8,8 @@
 *serviceAccount*.json
 .env
 .env.*
+
+# Fichiers Excel générés par les boutons "Exporter"/"Télécharger le modèle"
+# (testés en local, ne doivent pas finir dans le dépôt par mégarde).
+*.xlsx
+*.xls

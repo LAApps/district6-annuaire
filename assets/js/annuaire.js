@@ -21,6 +21,7 @@ export async function initAnnuaire() {
   els.search = document.getElementById("annuaire-search");
   els.addBtn = document.getElementById("btn-annuaire-add");
   els.importBtn = document.getElementById("btn-annuaire-import");
+  els.exportBtn = document.getElementById("btn-annuaire-export");
   els.form = document.getElementById("form-annuaire");
   els.modalTitle = document.getElementById("modal-annuaire-title");
   els.deleteBtn = document.getElementById("btn-annuaire-delete");
@@ -36,6 +37,8 @@ export async function initAnnuaire() {
   els.addBtn.addEventListener("click", () => openForm(null));
   els.importBtn.addEventListener("click", () => openImportModal("annuaire", loadAndRender));
   els.importBtn.classList.toggle("hidden", !isCurrentUserAdmin());
+  els.exportBtn.addEventListener("click", exportToExcel);
+  els.exportBtn.classList.toggle("hidden", !isCurrentUserAdmin());
 
   els.form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -84,6 +87,27 @@ async function loadThemesAndLinks() {
   }
 }
 
+function exportToExcel() {
+  if (allEntries.length === 0) {
+    toast("L'annuaire est vide, rien à exporter.", "error");
+    return;
+  }
+  const rows = allEntries.map((e) => ({
+    Nom: e.nom || "",
+    Prénom: e.prenom || "",
+    Fonction: e.fonction || "",
+    Établissement: e.etablissement || "",
+    Portable: e.portable || "",
+    Fixe: e.fixe || "",
+    Mail: e.mail || "",
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Annuaire");
+  const date = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(wb, `annuaire-district6-${date}.xlsx`);
+}
+
 function matches(entry, term) {
   if (!term) return true;
   const haystack = [entry.nom, entry.prenom, entry.fonction, entry.etablissement, entry.mail]
@@ -114,6 +138,7 @@ function render() {
               ? `<button class="btn btn-secondary btn-sm" data-action="edit" data-id="${e.id}">Modifier</button>`
               : ""
           }
+          ${admin ? `<button class="btn btn-danger btn-sm" data-action="delete" data-id="${e.id}">Supprimer</button>` : ""}
         </td>
       </tr>`
     )
@@ -123,6 +148,21 @@ function render() {
     btn.addEventListener("click", () => {
       const entry = allEntries.find((e) => e.id === btn.dataset.id);
       openForm(entry);
+    });
+  });
+
+  els.tbody.querySelectorAll('[data-action="delete"]').forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const entry = allEntries.find((e) => e.id === btn.dataset.id);
+      if (!entry) return;
+      if (!confirm(`Supprimer définitivement la fiche de ${entry.prenom} ${entry.nom} ?`)) return;
+      try {
+        await AnnuaireAPI.remove(entry.id);
+        toast("Fiche supprimée.", "success");
+        await loadAndRender();
+      } catch (err) {
+        toast("Erreur lors de la suppression : " + err.message, "error");
+      }
     });
   });
 }
