@@ -21,6 +21,14 @@ import { toast, openModal, closeModal, wireOverlayClose } from "./utils.js";
 
 initImport();
 
+// Service worker : nécessaire pour que le navigateur propose l'installation
+// de l'application sur le bureau / l'écran d'accueil.
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("service-worker.js").catch(() => {});
+  });
+}
+
 const loginScreen = document.getElementById("login-screen");
 const appShell = document.getElementById("app-shell");
 const loginError = document.getElementById("login-error");

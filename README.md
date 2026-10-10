@@ -113,6 +113,26 @@ Puis, sur GitHub : **Settings → Pages → Build and deployment → Deploy from
 
 N'oubliez pas d'ajouter cette URL (domaine `<votre-utilisateur>.github.io`) dans **Authentication → Settings → Domaines autorisés** côté Firebase (étape 2).
 
+## Installer l'application sur le bureau / l'écran d'accueil
+
+L'application est une **PWA** (Progressive Web App) : elle peut s'installer comme un logiciel, avec sa propre icône et sa propre fenêtre, sans passer par un store. Rien à configurer côté utilisateur·rice, il suffit d'ouvrir le site dans le navigateur habituel.
+
+**Sur ordinateur (Chrome ou Edge)** :
+
+1. Ouvrir <https://laapps.github.io/district6-annuaire/>.
+2. Dans la barre d'adresse, cliquer sur l'icône d'installation (un écran avec une flèche ⤓, à droite de l'adresse). Si elle n'apparaît pas, ouvrir le menu ⋮ (trois points en haut à droite) → **Installer District 6…**.
+3. Confirmer en cliquant sur **Installer**.
+
+L'application s'ouvre alors dans sa propre fenêtre et une icône est ajoutée sur le bureau / dans le menu démarrer (Windows) ou le Launchpad (Mac), comme une application classique.
+
+**Sur ordinateur (Safari, Mac)** : menu **Fichier → Ajouter au Dock…** (Safari 17 ou plus récent).
+
+**Sur mobile (Android, Chrome)** : menu ⋮ (trois points) → **Ajouter à l'écran d'accueil**.
+
+**Sur mobile (iPhone/iPad, Safari)** : bouton **Partager** (le carré avec une flèche vers le haut) → **Sur l'écran d'accueil**.
+
+Une fois installée, l'application nécessite toujours une connexion internet pour fonctionner (les données viennent de Firebase) — il n'y a pas de mode hors-ligne.
+
 ## Rôles : administrateur vs utilisateur
 
 Il n'y a que deux niveaux d'accès, tous deux basés sur l'adresse e-mail du compte connecté :
