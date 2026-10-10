@@ -1,11 +1,11 @@
 // ============================================================================
-// Onglet Dépôt de documents — contribution libre (lien ou fichier) de tous
-// les utilisateurs. Les fichiers sont hébergés sur Cloudinary (upload non
-// signé, voir assets/js/cloudinary-config.js) car l'application n'utilise
-// pas Firebase Storage (reste sur le forfait gratuit).
+// Onglet Dépôt de documents — bibliothèque classée par catégorie, contribution
+// libre (lien ou fichier) de tous les utilisateurs. Les fichiers sont
+// hébergés sur Cloudinary (upload non signé, voir cloudinary-config.js) car
+// l'application n'utilise pas Firebase Storage (reste sur le forfait gratuit).
 // ============================================================================
 
-import { DocumentsAPI } from "./db.js";
+import { DocumentsAPI, CategoriesDepotAPI } from "./db.js";
 import { getCurrentUser, isCurrentUserAdmin } from "./auth.js";
 import {
   CLOUDINARY_CLOUD_NAME,
@@ -17,15 +17,18 @@ import {
 import { escapeHtml, toast, openModal, closeModal, wireOverlayClose, formatDate, humanFileSize } from "./utils.js";
 
 let allDocuments = [];
+let categories = [];
 let searchTerm = "";
+let filterCategorie = "";
 
 const els = {};
 
 export async function initDepot() {
-  els.grid = document.getElementById("depot-grid");
-  els.empty = document.getElementById("depot-empty");
+  els.groups = document.getElementById("depot-groups");
   els.search = document.getElementById("depot-search");
+  els.filter = document.getElementById("depot-filter-categorie");
   els.addBtn = document.getElementById("btn-depot-add");
+  els.addCategorieBtn = document.getElementById("btn-depot-categorie-add");
   els.form = document.getElementById("form-depot");
   els.typeRadios = els.form.querySelectorAll('input[name="depotType"]');
   els.champLien = document.getElementById("champ-depot-lien");
@@ -34,21 +37,52 @@ export async function initDepot() {
   els.fileSizeHint = document.getElementById("depot-file-size-hint");
   els.rgpdCheck = document.getElementById("depot-rgpd-check");
   els.submitBtn = document.getElementById("btn-depot-submit");
+  els.formCategorie = document.getElementById("form-depot-categorie");
 
   els.fileInput.setAttribute("accept", ACCEPTED_FILE_EXTENSIONS);
   const maxSizeLabelEl = document.getElementById("depot-max-size-label");
   if (maxSizeLabelEl) maxSizeLabelEl.textContent = MAX_FILE_SIZE_LABEL;
 
+  const admin = isCurrentUserAdmin();
+  els.addCategorieBtn.classList.toggle("hidden", !admin);
+
   wireOverlayClose("modal-depot-overlay");
+  wireOverlayClose("modal-depot-categorie-overlay");
 
   els.search.addEventListener("input", () => {
     searchTerm = els.search.value.trim().toLowerCase();
+    render();
+  });
+  els.filter.addEventListener("change", () => {
+    filterCategorie = els.filter.value;
     render();
   });
 
   els.addBtn.addEventListener("click", () => openForm());
   document.getElementById("btn-depot-cancel").addEventListener("click", () => closeModal("modal-depot-overlay"));
   document.getElementById("modal-depot-close").addEventListener("click", () => closeModal("modal-depot-overlay"));
+
+  els.addCategorieBtn.addEventListener("click", () => {
+    els.formCategorie.reset();
+    openModal("modal-depot-categorie-overlay");
+  });
+  document.getElementById("btn-depot-categorie-cancel").addEventListener("click", () => closeModal("modal-depot-categorie-overlay"));
+  document.getElementById("modal-depot-categorie-close").addEventListener("click", () => closeModal("modal-depot-categorie-overlay"));
+  els.formCategorie.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const nom = els.formCategorie.elements["nom"].value.trim();
+    if (!nom) return;
+    try {
+      await CategoriesDepotAPI.add(nom);
+      toast("Catégorie ajoutée.", "success");
+      closeModal("modal-depot-categorie-overlay");
+      await loadCategories();
+      populateSelects();
+      render();
+    } catch (err) {
+      toast("Erreur : " + err.message, "error");
+    }
+  });
 
   els.typeRadios.forEach((radio) => radio.addEventListener("change", updateTypeFields));
 
@@ -69,17 +103,41 @@ export async function initDepot() {
     await saveForm();
   });
 
-  await loadAndRender();
+  await Promise.all([loadCategories(), loadDocuments()]);
+  populateSelects();
+  render();
 }
 
-async function loadAndRender() {
+async function loadCategories() {
+  try {
+    categories = isCurrentUserAdmin() ? await CategoriesDepotAPI.ensureDefaults() : await CategoriesDepotAPI.list();
+  } catch (err) {
+    toast("Impossible de charger les catégories : " + err.message, "error");
+    categories = [];
+  }
+}
+
+async function loadDocuments() {
   try {
     allDocuments = await DocumentsAPI.list();
   } catch (err) {
     toast("Impossible de charger les documents : " + err.message, "error");
     allDocuments = [];
   }
+}
+
+async function loadAndRender() {
+  await loadDocuments();
   render();
+}
+
+function populateSelects() {
+  els.filter.innerHTML =
+    `<option value="">Toutes les catégories</option>` +
+    categories.map((c) => `<option value="${c.id}">${escapeHtml(c.nom)}</option>`).join("");
+
+  const formSelect = els.form.elements["categorie"];
+  formSelect.innerHTML = categories.map((c) => `<option value="${c.id}">${escapeHtml(c.nom)}</option>`).join("");
 }
 
 function matches(doc, term) {
@@ -102,12 +160,24 @@ function detectType(fileName) {
 }
 
 function render() {
-  const filtered = allDocuments.filter((d) => matches(d, searchTerm));
-  els.empty.classList.toggle("hidden", filtered.length > 0);
+  const groups = categories.filter((c) => !filterCategorie || c.id === filterCategorie);
 
-  els.grid.innerHTML = filtered.map(renderCard).join("");
+  els.groups.innerHTML = groups
+    .map((c) => {
+      const items = allDocuments.filter((d) => d.categorie === c.id && matches(d, searchTerm));
+      return `
+        <div class="thematique-group">
+          <h3 class="thematique-title">${escapeHtml(c.nom)} <span class="thematique-count">${items.length}</span></h3>
+          ${
+            items.length === 0
+              ? `<p class="empty-state" style="padding:1rem;">Aucun document pour le moment.</p>`
+              : `<div class="resource-grid">${items.map(renderCard).join("")}</div>`
+          }
+        </div>`;
+    })
+    .join("");
 
-  els.grid.querySelectorAll('[data-action="delete"]').forEach((btn) => {
+  els.groups.querySelectorAll('[data-action="delete"]').forEach((btn) => {
     btn.addEventListener("click", async () => {
       const doc = allDocuments.find((d) => d.id === btn.dataset.id);
       if (!doc) return;
@@ -159,11 +229,16 @@ function updateTypeFields() {
 }
 
 function openForm() {
+  if (categories.length === 0) {
+    toast("Aucune catégorie disponible pour le moment. Réessayez dans un instant.", "error");
+    return;
+  }
   els.form.reset();
   els.fileSizeHint.textContent = "";
   els.fileSizeHint.classList.remove("error");
   els.submitBtn.disabled = false;
   els.submitBtn.textContent = "Déposer";
+  if (filterCategorie) els.form.elements["categorie"].value = filterCategorie;
   updateTypeFields();
   openModal("modal-depot-overlay");
 }
@@ -184,11 +259,12 @@ async function uploadToCloudinary(file) {
 
 async function saveForm() {
   const titre = els.form.elements["titre"].value.trim();
+  const categorie = els.form.elements["categorie"].value;
   const type = els.form.elements["depotType"].value;
   const description = els.form.elements["description"].value.trim();
 
-  if (!titre) {
-    toast("Le titre est obligatoire.", "error");
+  if (!titre || !categorie) {
+    toast("Le titre et la catégorie sont obligatoires.", "error");
     return;
   }
   if (!els.rgpdCheck.checked) {
@@ -202,7 +278,7 @@ async function saveForm() {
   els.submitBtn.disabled = true;
 
   try {
-    const data = { titre, description, ajoutePar };
+    const data = { titre, categorie, description, ajoutePar };
 
     if (type === "lien") {
       const url = els.form.elements["url"].value.trim();

@@ -5,7 +5,7 @@ Application web pour les personnels d'encadrement du **district 6 (Seine-Saint-D
 - **Annuaire** : nom, prénom, fonction, établissement, portable, fixe, mail. Chacun peut ajouter sa propre fiche et la modifier ; les administrateurs peuvent gérer toutes les fiches.
 - **Ressources** : liens, PDF, ZIP classés par thématique (budget, DHG, management, montage de projet, IA, évaluations, syndicats, textes officiels, bulletins académiques, bulletins départementaux, courriers types, documents types). Consultation et téléchargement pour tous ; ajout/suppression réservés aux administrateurs. Contact administrateur.
 - **Personnes ressources** : recherche par thème (budget, DHG, EDT, IA, bureautique/informatique, RH, gestion de crises, CPS, EVARS, évaluations nationales) → personnes à contacter (données reprises de l'Annuaire). Consultation pour tous ; chacun peut se déclarer soi-même comme personne ressource sur un thème existant (il faut d'abord avoir sa propre fiche dans l'Annuaire) ; création de thème et déclaration d'un·e collègue réservées aux administrateurs.
-- **Dépôt de documents** : contribution libre, ouverte à tous — chacun peut déposer un lien ou un fichier (PDF, Word, Excel, JPEG, PNG ; 10 Mo maximum) pour le partager avec ses collègues. Un avertissement RGPD rappelle que le déposant reste seul responsable du contenu partagé. Chacun peut retirer sa propre contribution ; les administrateurs peuvent retirer n'importe laquelle.
+- **Dépôt de documents** : bibliothèque classée par catégorie (Courriers types, Examens collège, Examens LGT, Examens LP, Bulletin académique, Syndicats, DHG, Budget, Infographies par défaut — les administrateurs peuvent en ajouter d'autres à tout moment). Contribution libre, ouverte à tous — chacun peut déposer un lien ou un fichier (PDF, Word, Excel, JPEG, PNG ; 10 Mo maximum) dans la catégorie de son choix. Un avertissement RGPD rappelle que le déposant reste seul responsable du contenu partagé. Chacun peut retirer sa propre contribution ; les administrateurs peuvent retirer n'importe laquelle.
 - **Contacts DSDEN/Rectorat** : annuaire institutionnel (service, nom, prénom, fonction, téléphone, mail). Consultation pour tous ; ajout, modification, suppression et import Excel réservés aux administrateurs.
 - **Import Excel** : les onglets Annuaire, Ressources, Personnes ressources et Contacts DSDEN/Rectorat disposent d'un bouton « Importer un fichier Excel » (+ un bouton pour télécharger un modèle vierge) permettant d'alimenter en masse les données depuis un fichier `.xlsx`/`.xls`/`.csv`.
 
@@ -106,7 +106,8 @@ Il n'y a que deux niveaux d'accès, tous deux basés sur l'adresse e-mail du com
 | `ressources` | `titre`, `thematique`, `type` (`lien`\|`pdf`\|`zip`), `url`, `description`, `ajoutePar` |
 | `themesReseau` | `nom` |
 | `personnesRessources` | `themeId` (→ `themesReseau`), `annuaireId` (→ `annuaire`), `note` |
-| `documents` | `titre`, `type` (`lien`\|`pdf`\|`word`\|`excel`\|`jpeg`\|`png`), `url`, `fileName`, `fileSizeBytes`, `description`, `ajoutePar` |
+| `documents` | `titre`, `categorie` (→ `categoriesDepot`), `type` (`lien`\|`pdf`\|`word`\|`excel`\|`jpeg`\|`png`), `url`, `fileName`, `fileSizeBytes`, `description`, `ajoutePar` |
+| `categoriesDepot` | `nom` |
 | `contactsDsden` | `service`, `nom`, `prenom`, `fonction`, `telephone`, `mail` |
 
 ## Import Excel

@@ -81,5 +81,12 @@ service cloud.firestore {
       allow read: if isAcademicUser();
       allow create, update, delete: if isAdmin();
     }
+
+    // Catégories de la bibliothèque du Dépôt de documents : consultation pour
+    // tous, création/modification/suppression réservées aux administrateurs.
+    match /categoriesDepot/{docId} {
+      allow read: if isAcademicUser();
+      allow create, update, delete: if isAdmin();
+    }
   }
 }

@@ -146,14 +146,15 @@
         <div class="view-header">
           <h2>Dépôt de documents</h2>
           <div class="view-actions">
+            <button id="btn-depot-categorie-add" class="btn btn-secondary">+ Ajouter une catégorie</button>
             <button id="btn-depot-add" class="btn btn-primary">+ Déposer un document</button>
           </div>
         </div>
         <div class="toolbar">
           <input id="depot-search" class="input search-input" type="search" placeholder="Rechercher un document…" />
+          <select id="depot-filter-categorie" class="input"></select>
         </div>
-        <div id="depot-grid" class="resource-grid"></div>
-        <p id="depot-empty" class="empty-state hidden">Aucun document déposé pour le moment.</p>
+        <div id="depot-groups"></div>
       </section>
 
       <!-- ===================== Vue Contacts DSDEN/Rectorat ===================== -->
@@ -363,6 +364,10 @@
             <input class="input" id="depot-titre" name="titre" required />
           </div>
           <div class="form-field">
+            <label for="depot-categorie">Catégorie *</label>
+            <select class="input" id="depot-categorie" name="categorie" required></select>
+          </div>
+          <div class="form-field">
             <label>Type de contribution *</label>
             <div style="display:flex;gap:1rem;">
               <label style="font-weight:400;"><input type="radio" name="depotType" value="lien" checked /> Lien</label>
@@ -390,6 +395,28 @@
         <div class="modal__footer">
           <button type="button" id="btn-depot-cancel" class="btn btn-secondary">Annuler</button>
           <button type="submit" id="btn-depot-submit" class="btn btn-primary">Déposer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================== Modale : nouvelle catégorie (dépôt) ===================== -->
+  <div id="modal-depot-categorie-overlay" class="modal-overlay">
+    <div class="modal">
+      <div class="modal__header">
+        <h3>Ajouter une catégorie</h3>
+        <button id="modal-depot-categorie-close" class="modal__close" aria-label="Fermer">&times;</button>
+      </div>
+      <form id="form-depot-categorie">
+        <div class="modal__body">
+          <div class="form-field">
+            <label for="dc-nom">Nom de la catégorie *</label>
+            <input class="input" id="dc-nom" name="nom" required placeholder="Ex : Protocoles sanitaires" />
+          </div>
+        </div>
+        <div class="modal__footer">
+          <button type="button" id="btn-depot-categorie-cancel" class="btn btn-secondary">Annuler</button>
+          <button type="submit" class="btn btn-primary">Ajouter</button>
         </div>
       </form>
     </div>

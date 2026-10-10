@@ -29,6 +29,7 @@ const col = {
   personnesRessources: collection(db, "personnesRessources"),
   documents: collection(db, "documents"),
   contactsDsden: collection(db, "contactsDsden"),
+  categoriesDepot: collection(db, "categoriesDepot"),
 };
 
 // ----- Listes fixes (thématiques des ressources) ------------------------
@@ -59,6 +60,20 @@ export const THEMES_RESEAU_DEFAUT = [
   "CPS",
   "EVARS",
   "Évaluations nationales",
+];
+
+// Catégories par défaut de la bibliothèque du Dépôt de documents (créées
+// automatiquement si la collection est vide).
+export const CATEGORIES_DEPOT_DEFAUT = [
+  "Courriers types",
+  "Examens collège",
+  "Examens LGT",
+  "Examens LP",
+  "Bulletin académique",
+  "Syndicats",
+  "DHG",
+  "Budget",
+  "Infographies",
 ];
 
 async function genericAdd(colRef, data) {
@@ -120,6 +135,20 @@ export const DocumentsAPI = {
   list: () => genericList(col.documents, "createdAt"),
   add: (data) => genericAdd(col.documents, data),
   remove: (id) => genericDelete(col.documents, id),
+};
+
+// ----- Catégories du Dépôt de documents (bibliothèque) ------------------------
+export const CategoriesDepotAPI = {
+  list: () => genericList(col.categoriesDepot, "nom"),
+  add: (nom) => genericAdd(col.categoriesDepot, { nom }),
+  ensureDefaults: async () => {
+    const existing = await genericList(col.categoriesDepot, "nom");
+    if (existing.length > 0) return existing;
+    for (const nom of CATEGORIES_DEPOT_DEFAUT) {
+      await genericAdd(col.categoriesDepot, { nom });
+    }
+    return genericList(col.categoriesDepot, "nom");
+  },
 };
 
 // ----- Contacts DSDEN / Rectorat ----------------------------------------------
