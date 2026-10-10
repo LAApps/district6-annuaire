@@ -2,7 +2,7 @@
 // Onglet Annuaire — liste, recherche, ajout et modification des fiches.
 // ============================================================================
 
-import { AnnuaireAPI, ThemesReseauAPI, PersonnesRessourcesAPI } from "./db.js";
+import { AnnuaireAPI, ThemesReseauAPI, PersonnesRessourcesAPI, VILLES_DISTRICT } from "./db.js";
 import { escapeHtml, toast, openModal, closeModal, wireOverlayClose } from "./utils.js";
 import { openImportModal } from "./import.js";
 import { isCurrentUserAdmin, isOwnAnnuaireEntry, getCurrentUser } from "./auth.js";
@@ -26,6 +26,10 @@ export async function initAnnuaire() {
   els.modalTitle = document.getElementById("modal-annuaire-title");
   els.deleteBtn = document.getElementById("btn-annuaire-delete");
   els.themesList = document.getElementById("f-themes-list");
+  els.villeSelect = document.getElementById("f-ville");
+
+  els.villeSelect.innerHTML =
+    `<option value="">—</option>` + VILLES_DISTRICT.map((v) => `<option value="${v}">${v}</option>`).join("");
 
   wireOverlayClose("modal-annuaire-overlay");
 
@@ -97,6 +101,7 @@ function exportToExcel() {
     Prénom: e.prenom || "",
     Fonction: e.fonction || "",
     Établissement: e.etablissement || "",
+    Ville: e.ville || "",
     Portable: e.portable || "",
     Fixe: e.fixe || "",
     Mail: e.mail || "",
@@ -110,7 +115,7 @@ function exportToExcel() {
 
 function matches(entry, term) {
   if (!term) return true;
-  const haystack = [entry.nom, entry.prenom, entry.fonction, entry.etablissement, entry.mail]
+  const haystack = [entry.nom, entry.prenom, entry.fonction, entry.etablissement, entry.ville, entry.mail]
     .join(" ")
     .toLowerCase();
   return haystack.includes(term);
@@ -129,6 +134,7 @@ function render() {
         <td>${escapeHtml(e.prenom)}</td>
         <td>${escapeHtml(e.fonction)}</td>
         <td>${escapeHtml(e.etablissement)}</td>
+        <td>${escapeHtml(e.ville)}</td>
         <td>${escapeHtml(e.portable)}</td>
         <td>${escapeHtml(e.fixe)}</td>
         <td>${e.mail ? `<a href="mailto:${escapeHtml(e.mail)}">${escapeHtml(e.mail)}</a>` : ""}</td>
@@ -174,7 +180,7 @@ function openForm(entry) {
   els.deleteBtn.classList.toggle("hidden", !entry || !(admin || isOwnAnnuaireEntry(entry)));
   els.form.reset();
   if (entry) {
-    for (const field of ["nom", "prenom", "fonction", "etablissement", "portable", "fixe", "mail"]) {
+    for (const field of ["nom", "prenom", "fonction", "etablissement", "ville", "portable", "fixe", "mail"]) {
       const input = els.form.elements[field];
       if (input) input.value = entry[field] || "";
     }
@@ -224,7 +230,7 @@ async function syncPersonnesRessources(annuaireId) {
 
 async function saveForm() {
   const data = {};
-  for (const field of ["nom", "prenom", "fonction", "etablissement", "portable", "fixe", "mail"]) {
+  for (const field of ["nom", "prenom", "fonction", "etablissement", "ville", "portable", "fixe", "mail"]) {
     data[field] = els.form.elements[field].value.trim();
   }
   if (!data.nom || !data.prenom) {

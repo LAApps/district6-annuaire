@@ -3,7 +3,15 @@
 // Utilise la librairie SheetJS (global `XLSX`, chargée en CDN dans index.html).
 // ============================================================================
 
-import { AnnuaireAPI, RessourcesAPI, ThemesReseauAPI, PersonnesRessourcesAPI, ContactsDsdenAPI, THEMATIQUES_RESSOURCES } from "./db.js";
+import {
+  AnnuaireAPI,
+  RessourcesAPI,
+  ThemesReseauAPI,
+  PersonnesRessourcesAPI,
+  ContactsDsdenAPI,
+  THEMATIQUES_RESSOURCES,
+  VILLES_DISTRICT,
+} from "./db.js";
 import { toast, openModal, closeModal, escapeHtml } from "./utils.js";
 
 let currentType = null;
@@ -12,7 +20,7 @@ let onImportedCallback = null;
 const TEMPLATES = {
   annuaire: {
     title: "Importer l'annuaire depuis Excel",
-    instructions: "Colonnes attendues : Nom, Prénom, Fonction, Établissement, Portable, Fixe, Mail. Nom et Prénom sont obligatoires.",
+    instructions: "Colonnes attendues : Nom, Prénom, Fonction, Établissement, Ville, Portable, Fixe, Mail. Nom et Prénom sont obligatoires. Ville doit être l'une de : BAGNOLET, NOISY LE SEC, MONTREUIL, ROMAINVILLE, ROSNY-SOUS-BOIS.",
     sheetName: "Annuaire",
     fileName: "modele-annuaire.xlsx",
     sampleRows: [
@@ -21,6 +29,7 @@ const TEMPLATES = {
         Prénom: "Marie",
         Fonction: "Principale",
         Établissement: "Collège Jean Moulin",
+        Ville: "MONTREUIL",
         Portable: "0600000000",
         Fixe: "0140000000",
         Mail: "marie.dupont@ac-creteil.fr",
@@ -193,11 +202,25 @@ async function importAnnuaire(rows) {
       report.errors.push({ row: i + 2, message: "Nom et Prénom sont obligatoires." });
       continue;
     }
+    const villeRaw = pick(n, ["ville"]);
+    let ville = "";
+    if (villeRaw) {
+      const match = VILLES_DISTRICT.find((v) => normalizeKey(v) === normalizeKey(villeRaw));
+      if (!match) {
+        report.errors.push({
+          row: i + 2,
+          message: `Ville « ${villeRaw} » inconnue (attendu : ${VILLES_DISTRICT.join(", ")}).`,
+        });
+        continue;
+      }
+      ville = match;
+    }
     const data = {
       nom,
       prenom,
       fonction: pick(n, ["fonction"]),
       etablissement: pick(n, ["etablissement"]),
+      ville,
       portable: pick(n, ["portable", "telephoneportable", "mobile", "tel", "telephone"]),
       fixe: pick(n, ["fixe", "lignefixe", "telephonefixe"]),
       mail: pick(n, ["mail", "email", "courriel"]),

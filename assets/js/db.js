@@ -50,6 +50,9 @@ export const THEMATIQUES_RESSOURCES = [
   { id: "documents-types", label: "Documents types" },
 ];
 
+// Villes du district (menu déroulant de la fiche Annuaire).
+export const VILLES_DISTRICT = ["BAGNOLET", "NOISY LE SEC", "MONTREUIL", "ROMAINVILLE", "ROSNY-SOUS-BOIS"];
+
 // Thèmes réseau par défaut (créés automatiquement si la collection est vide).
 export const THEMES_RESEAU_DEFAUT = [
   "Budget",

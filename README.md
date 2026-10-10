@@ -129,7 +129,7 @@ Il n'y a que deux niveaux d'accès, tous deux basés sur l'adresse e-mail du com
 
 | Collection | Champs principaux |
 |---|---|
-| `annuaire` | `nom`, `prenom`, `fonction`, `etablissement`, `portable`, `fixe`, `mail` |
+| `annuaire` | `nom`, `prenom`, `fonction`, `etablissement`, `ville` (BAGNOLET\|NOISY LE SEC\|MONTREUIL\|ROMAINVILLE\|ROSNY-SOUS-BOIS), `portable`, `fixe`, `mail` |
 | `ressources` | `titre`, `thematique`, `type` (`lien`\|`pdf`\|`zip`), `url`, `description`, `ajoutePar` |
 | `themesReseau` | `nom` |
 | `personnesRessources` | `themeId` (→ `themesReseau`), `annuaireId` (→ `annuaire`), `note` |
