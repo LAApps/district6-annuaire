@@ -34,6 +34,14 @@ export const ADMIN_EMAIL = "lhaj.azzouzi@ac-creteil.fr";
 // (fonction isAdmin()) — c'est là qu'est la vraie barrière de sécurité.
 export const ADMIN_EMAILS = ["lhaj.azzouzi@ac-creteil.fr"];
 
+// Seule cette adresse peut ajouter/modifier/supprimer des événements dans le
+// Calendrier — volontairement indépendant de ADMIN_EMAILS, pour que le
+// Calendrier reste réservé à cette seule personne même si d'autres
+// administrateurs sont ajoutés un jour à ADMIN_EMAILS pour d'autres raisons.
+// IMPORTANT : doit être répété à l'identique dans firestore.rules
+// (fonction isCalendrierEditor()).
+export const CALENDRIER_EDITOR_EMAIL = "lhaj.azzouzi@ac-creteil.fr";
+
 // Nom affiché dans l'en-tête.
 export const APP_TITLE = "District 6 — Seine-Saint-Denis";
 export const APP_SUBTITLE = "Espace des personnels d'encadrement";

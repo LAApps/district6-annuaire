@@ -20,6 +20,14 @@ service cloud.firestore {
         && request.auth.token.email.lower() in ['lhaj.azzouzi@ac-creteil.fr'];
     }
 
+    // Seule cette adresse peut gérer le Calendrier — volontairement
+    // indépendant de isAdmin(), à tenir identique à CALENDRIER_EDITOR_EMAIL
+    // dans firebase-config.js.
+    function isCalendrierEditor() {
+      return isAcademicUser()
+        && request.auth.token.email.lower() == 'lhaj.azzouzi@ac-creteil.fr';
+    }
+
     function ownsAnnuaireDoc(data) {
       return data.mail is string
         && data.mail.lower() == request.auth.token.email.lower();
@@ -90,10 +98,11 @@ service cloud.firestore {
     }
 
     // Calendrier : consultation pour tous, création/modification/suppression
-    // des événements réservées aux administrateurs.
+    // des événements réservées exclusivement à isCalendrierEditor() (pas aux
+    // administrateurs en général).
     match /evenements/{docId} {
       allow read: if isAcademicUser();
-      allow create, update, delete: if isAdmin();
+      allow create, update, delete: if isCalendrierEditor();
     }
 
     // Question secrète de récupération de mot de passe : l'ID du document EST

@@ -8,7 +8,7 @@
 // ============================================================================
 
 import { app, RecoverySecretsAPI } from "./db.js";
-import { ALLOWED_EMAIL_DOMAINS, ADMIN_EMAILS } from "./firebase-config.js";
+import { ALLOWED_EMAIL_DOMAINS, ADMIN_EMAILS, CALENDRIER_EDITOR_EMAIL } from "./firebase-config.js";
 import { RECOVERY_API_BASE_URL } from "./recovery-config.js";
 import { sha256Hex } from "./utils.js";
 import {
@@ -150,6 +150,15 @@ export function isCurrentUserAdmin() {
   const email = currentUser && currentUser.email;
   if (!email) return false;
   return ADMIN_EMAILS.some((a) => a.toLowerCase() === email.toLowerCase());
+}
+
+// Contrôle d'affichage côté client uniquement — la vraie restriction est
+// dans firestore.rules (fonction isCalendrierEditor()). Volontairement
+// indépendant de isCurrentUserAdmin() : seule cette adresse gère le Calendrier.
+export function isCalendrierEditor() {
+  const email = currentUser && currentUser.email;
+  if (!email) return false;
+  return email.toLowerCase() === CALENDRIER_EDITOR_EMAIL.toLowerCase();
 }
 
 export function isOwnAnnuaireEntry(entry) {

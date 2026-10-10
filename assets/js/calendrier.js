@@ -1,14 +1,16 @@
 // ============================================================================
 // Onglet Calendrier — événements du district. Consultation pour tous,
-// ajout/modification/suppression réservés aux administrateurs. Chacun peut
-// ajouter un événement à son propre agenda : le bouton "Ajouter à mon
-// agenda" télécharge un fichier .ics (format standard), que les applications
-// Calendrier/Agenda d'iPhone, Android, Outlook ou Google Agenda savent
-// ouvrir directement pour créer l'événement.
+// ajout/modification/suppression réservés exclusivement à
+// CALENDRIER_EDITOR_EMAIL (volontairement indépendant du rôle administrateur
+// général — voir firebase-config.js). Chacun peut ajouter un événement à
+// son propre agenda : le bouton "Ajouter à mon agenda" télécharge un
+// fichier .ics (format standard), que les applications Calendrier/Agenda
+// d'iPhone, Android, Outlook ou Google Agenda savent ouvrir directement
+// pour créer l'événement.
 // ============================================================================
 
 import { EvenementsAPI } from "./db.js";
-import { isCurrentUserAdmin } from "./auth.js";
+import { isCalendrierEditor } from "./auth.js";
 import { escapeHtml, toast, openModal, closeModal, wireOverlayClose, capitalizeFirst } from "./utils.js";
 
 let allEvents = [];
@@ -26,7 +28,7 @@ export async function initCalendrier() {
 
   wireOverlayClose("modal-evenement-overlay");
 
-  const admin = isCurrentUserAdmin();
+  const admin = isCalendrierEditor();
   els.addBtn.classList.toggle("hidden", !admin);
   els.addBtn.addEventListener("click", () => openForm(null));
 
@@ -87,7 +89,7 @@ function formatRange(ev) {
 
 function render() {
   els.empty.classList.toggle("hidden", allEvents.length > 0);
-  const admin = isCurrentUserAdmin();
+  const admin = isCalendrierEditor();
   const now = new Date();
 
   const upcoming = allEvents.filter((e) => {
