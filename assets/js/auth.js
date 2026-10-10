@@ -81,6 +81,17 @@ export async function signup(email, password, securityQuestion, securityAnswer) 
   return user;
 }
 
+// Permet à un utilisateur déjà connecté de définir ou changer sa question
+// secrète (utile pour les comptes créés avant l'ajout de cette fonctionnalité).
+export async function updateSecurityQuestion(securityQuestion, securityAnswer) {
+  if (!currentUser) throw new Error("Vous devez être connecté·e.");
+  if (!securityQuestion || !securityAnswer) {
+    throw new Error("La question et la réponse sont obligatoires.");
+  }
+  const answerHash = await sha256Hex(securityAnswer.trim().toLowerCase());
+  await RecoverySecretsAPI.set(currentUser.email, securityQuestion.trim(), answerHash);
+}
+
 // ----- Récupération de mot de passe en libre-service (sans administrateur) ---
 // Passe par une petite fonction serveur (Vercel) qui vérifie la réponse à la
 // question secrète puis réinitialise le mot de passe via le SDK Admin

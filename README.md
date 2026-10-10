@@ -86,7 +86,7 @@ Firebase ne permet de réinitialiser un mot de passe que de deux façons : par e
 6. **Publier les règles Firestore mises à jour** (collection `recoverySecrets`, voir [`firestore.rules`](firestore.rules)) dans **Firestore Database → Règles**.
 7. Si votre site est hébergé ailleurs que `https://laapps.github.io`, ajoutez son origine dans [`lib/cors.js`](lib/cors.js) (`ALLOWED_ORIGINS`).
 
-Une fois ces étapes faites, chaque nouveau compte créé définit sa question secrète, et le lien « Mot de passe oublié ? » de l'écran de connexion fonctionne de façon autonome. **Les comptes déjà créés avant cette mise à jour n'ont pas de question secrète enregistrée** — pour eux, la récupération reste manuelle (suppression du compte dans Firebase Console → Authentication → Users, puis recréation).
+Une fois ces étapes faites, chaque nouveau compte créé définit sa question secrète, et le lien « Mot de passe oublié ? » de l'écran de connexion fonctionne de façon autonome. **Les comptes déjà créés avant cette mise à jour n'ont pas de question secrète enregistrée** — chacun·e peut la définir rétroactivement une fois connecté·e, via le bouton **« Ma question secrète »** en haut à droite de l'application (à côté de « Déconnexion »).
 
 ## 3. Tester en local
 

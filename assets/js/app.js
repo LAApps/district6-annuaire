@@ -2,14 +2,22 @@
 // Orchestration générale : authentification + navigation par onglets.
 // ============================================================================
 
-import { signup, login, logout, onUserChange, fetchRecoveryQuestion, resetPasswordWithAnswer } from "./auth.js";
+import {
+  signup,
+  login,
+  logout,
+  onUserChange,
+  fetchRecoveryQuestion,
+  resetPasswordWithAnswer,
+  updateSecurityQuestion,
+} from "./auth.js";
 import { initAnnuaire } from "./annuaire.js";
 import { initRessources } from "./ressources.js";
 import { initContacts } from "./contacts.js";
 import { initDepot } from "./depot.js";
 import { initContactsDsden } from "./contactsDsden.js";
 import { initImport } from "./import.js";
-import { toast } from "./utils.js";
+import { toast, openModal, closeModal, wireOverlayClose } from "./utils.js";
 
 initImport();
 
@@ -165,6 +173,34 @@ formRecoveryAnswer.addEventListener("submit", async (e) => {
     loginError.classList.remove("hidden");
   } finally {
     recoverySubmitBtn.disabled = false;
+  }
+});
+
+// ----- Ma question secrète (pour les comptes déjà connectés) -----------------
+const btnSecurityQuestion = document.getElementById("btn-security-question");
+const formSecurityQuestion = document.getElementById("form-security-question");
+wireOverlayClose("modal-security-question-overlay");
+
+btnSecurityQuestion.addEventListener("click", () => {
+  formSecurityQuestion.reset();
+  openModal("modal-security-question-overlay");
+});
+document.getElementById("btn-security-question-cancel").addEventListener("click", () =>
+  closeModal("modal-security-question-overlay")
+);
+document.getElementById("modal-security-question-close").addEventListener("click", () =>
+  closeModal("modal-security-question-overlay")
+);
+formSecurityQuestion.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const question = formSecurityQuestion.elements["securityQuestion"].value;
+  const answer = formSecurityQuestion.elements["securityAnswer"].value;
+  try {
+    await updateSecurityQuestion(question, answer);
+    toast("Question secrète enregistrée.", "success");
+    closeModal("modal-security-question-overlay");
+  } catch (err) {
+    toast("Erreur : " + err.message, "error");
   }
 });
 

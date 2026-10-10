@@ -1,2 +1,10 @@
 .DS_Store
 *.log
+
+# Clés de compte de service Firebase (droits admin complets) — ne doivent
+# JAMAIS être commitées. Elles sont stockées uniquement en variables
+# d'environnement sur Vercel (voir README, section "Mot de passe oublié").
+*firebase-adminsdk*.json
+*serviceAccount*.json
+.env
+.env.*

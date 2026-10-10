@@ -114,6 +114,7 @@
         <div class="user-box">
           <img id="user-avatar" class="avatar hidden" alt="" />
           <span id="user-name"></span>
+          <button id="btn-security-question" class="btn btn-secondary btn-sm">Ma question secrète</button>
           <button id="btn-logout" class="btn btn-secondary btn-sm">Déconnexion</button>
         </div>
       </div>
@@ -472,6 +473,35 @@
         <div class="modal__footer">
           <button type="button" id="btn-depot-categorie-cancel" class="btn btn-secondary">Annuler</button>
           <button type="submit" class="btn btn-primary">Ajouter</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================== Modale : ma question secrète ===================== -->
+  <div id="modal-security-question-overlay" class="modal-overlay">
+    <div class="modal">
+      <div class="modal__header">
+        <h3>Ma question secrète</h3>
+        <button id="modal-security-question-close" class="modal__close" aria-label="Fermer">&times;</button>
+      </div>
+      <form id="form-security-question">
+        <div class="modal__body">
+          <p class="field-hint">
+            Cette question vous sera posée si vous oubliez votre mot de passe, pour pouvoir le réinitialiser vous-même, sans contacter l'administrateur. La définir ici écrase celle éventuellement déjà enregistrée.
+          </p>
+          <div class="form-field">
+            <label for="sq-question">Question secrète *</label>
+            <input class="input" id="sq-question" name="securityQuestion" required placeholder="Ex : Nom de mon premier établissement ?" />
+          </div>
+          <div class="form-field">
+            <label for="sq-answer">Réponse secrète *</label>
+            <input class="input" id="sq-answer" name="securityAnswer" required />
+          </div>
+        </div>
+        <div class="modal__footer">
+          <button type="button" id="btn-security-question-cancel" class="btn btn-secondary">Annuler</button>
+          <button type="submit" class="btn btn-primary">Enregistrer</button>
         </div>
       </form>
     </div>
