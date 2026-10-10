@@ -13,3 +13,7 @@
 # (testés en local, ne doivent pas finir dans le dépôt par mégarde).
 *.xlsx
 *.xls
+
+# PDF de référence pour l'administration (usage personnel, pas de contenu
+# applicatif, pas de raison d'être publié sur le dépôt/GitHub Pages).
+District6-liens-administration.pdf
