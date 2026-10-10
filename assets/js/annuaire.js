@@ -109,15 +109,26 @@ async function loadAndRender() {
   render();
 }
 
+function normKey(str) {
+  return String(str || "").trim().toLowerCase();
+}
+
 // Reconstruit les options des filtres Fonction / Établissement à partir des
-// valeurs réellement présentes dans l'annuaire, en conservant la sélection
-// en cours si elle existe toujours.
+// valeurs réellement présentes dans l'annuaire, en regroupant les variantes
+// de casse ("Principal" / "principal") sous une seule option, et en
+// conservant la sélection en cours si elle existe toujours.
 function populateFilters() {
-  const buildOptions = (select, values, allLabel, current) => {
-    const unique = Array.from(new Set(values.filter(Boolean))).sort((a, b) => a.localeCompare(b, "fr"));
-    const keep = unique.includes(current) ? current : "";
+  const buildOptions = (select, values, allLabel, current, formatLabel) => {
+    const groups = new Map(); // clé normalisée -> libellé affiché
+    values.filter(Boolean).forEach((v) => {
+      const key = normKey(v);
+      if (!groups.has(key)) groups.set(key, formatLabel(v));
+    });
+    const options = Array.from(groups.entries()).sort((a, b) => a[1].localeCompare(b[1], "fr"));
+    const keep = options.some(([key]) => key === current) ? current : "";
     select.innerHTML =
-      `<option value="">${allLabel}</option>` + unique.map((v) => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
+      `<option value="">${allLabel}</option>` +
+      options.map(([key, label]) => `<option value="${escapeHtml(key)}">${escapeHtml(label)}</option>`).join("");
     select.value = keep;
     return keep;
   };
@@ -126,13 +137,15 @@ function populateFilters() {
     els.filterFonction,
     allEntries.map((e) => e.fonction),
     "Toutes les fonctions",
-    filterFonction
+    filterFonction,
+    capitalizeFirst
   );
   filterEtablissement = buildOptions(
     els.filterEtablissement,
     allEntries.map((e) => e.etablissement),
     "Tous les établissements",
-    filterEtablissement
+    filterEtablissement,
+    toUpperFr
   );
 }
 
@@ -172,8 +185,8 @@ function exportToExcel() {
 }
 
 function matches(entry, term) {
-  if (filterFonction && entry.fonction !== filterFonction) return false;
-  if (filterEtablissement && entry.etablissement !== filterEtablissement) return false;
+  if (filterFonction && normKey(entry.fonction) !== filterFonction) return false;
+  if (filterEtablissement && normKey(entry.etablissement) !== filterEtablissement) return false;
   if (!term) return true;
   const haystack = [entry.nom, entry.prenom, entry.fonction, entry.etablissement, entry.ville, entry.mail]
     .join(" ")
