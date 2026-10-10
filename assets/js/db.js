@@ -32,6 +32,7 @@ const col = {
   contactsDsden: collection(db, "contactsDsden"),
   categoriesDepot: collection(db, "categoriesDepot"),
   recoverySecrets: collection(db, "recoverySecrets"),
+  evenements: collection(db, "evenements"),
 };
 
 // ----- Listes fixes (thématiques des ressources) ------------------------
@@ -177,4 +178,14 @@ export const ContactsDsdenAPI = {
   add: (data) => genericAdd(col.contactsDsden, data),
   update: (id, data) => genericUpdate(col.contactsDsden, id, data),
   remove: (id) => genericDelete(col.contactsDsden, id),
+};
+
+// ----- Calendrier --------------------------------------------------------------
+// Événements du district. Consultation pour tous ; création/modification/
+// suppression réservées aux administrateurs (voir assets/js/calendrier.js).
+export const EvenementsAPI = {
+  list: () => genericList(col.evenements, "dateDebut"),
+  add: (data) => genericAdd(col.evenements, data),
+  update: (id, data) => genericUpdate(col.evenements, id, data),
+  remove: (id) => genericDelete(col.evenements, id),
 };

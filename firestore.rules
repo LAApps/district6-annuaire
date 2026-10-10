@@ -89,6 +89,13 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
 
+    // Calendrier : consultation pour tous, création/modification/suppression
+    // des événements réservées aux administrateurs.
+    match /evenements/{docId} {
+      allow read: if isAcademicUser();
+      allow create, update, delete: if isAdmin();
+    }
+
     // Question secrète de récupération de mot de passe : l'ID du document EST
     // l'adresse e-mail (en minuscules). Personne ne peut la LIRE depuis le
     // client (même pas son propriétaire) — seule la fonction serveur Vercel,

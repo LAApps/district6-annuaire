@@ -107,6 +107,9 @@
   <div id="app-shell" class="hidden">
     <header class="app-header">
       <div class="app-header__inner">
+        <button id="btn-nav-toggle" class="nav-toggle" aria-label="Ouvrir le menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
         <div class="institution-block">
           <div class="marianne-mark">
             <span>RÉPUBLIQUE</span><span>FRANÇAISE</span>
@@ -127,12 +130,15 @@
           <button id="btn-logout" class="btn btn-secondary btn-sm">Déconnexion</button>
         </div>
       </div>
-      <nav class="tabs-nav" aria-label="Navigation principale">
+      <div id="nav-overlay" class="nav-overlay"></div>
+      <nav id="tabs-nav" class="tabs-nav" aria-label="Navigation principale">
+        <button id="btn-nav-close" class="nav-close" aria-label="Fermer le menu">&times;</button>
         <button class="tab-btn active" data-view="annuaire">Annuaire</button>
         <button class="tab-btn" data-view="ressources">Ressources</button>
         <button class="tab-btn" data-view="contacts">Personnes ressources</button>
         <button class="tab-btn" data-view="depot">Dépôt de documents</button>
         <button class="tab-btn" data-view="dsden">Contacts DSDEN/Rectorat</button>
+        <button class="tab-btn" data-view="calendrier">Calendrier</button>
       </nav>
     </header>
 
@@ -236,9 +242,15 @@
         </div>
         <div class="toolbar">
           <input id="dsden-search" class="input search-input" type="search" placeholder="Rechercher (service, nom, prénom, fonction, mail)…" />
+          <select id="dsden-filter-fonction" class="input">
+            <option value="">Toutes les fonctions</option>
+          </select>
+          <select id="dsden-filter-service" class="input">
+            <option value="">Tous les services</option>
+          </select>
         </div>
         <div class="table-wrap">
-          <table class="annuaire-table">
+          <table id="dsden-main-table" class="annuaire-table">
             <thead>
               <tr>
                 <th>Service</th>
@@ -254,6 +266,19 @@
           </table>
         </div>
         <p id="dsden-empty" class="empty-state hidden">Aucun contact DSDEN/Rectorat pour le moment.</p>
+      </section>
+
+      <!-- ===================== Vue Calendrier ===================== -->
+      <section id="view-calendrier" class="view">
+        <div class="view-header">
+          <h2>Calendrier du district</h2>
+          <div class="view-actions">
+            <button id="btn-evenement-add" class="btn btn-primary">+ Ajouter un événement</button>
+          </div>
+        </div>
+        <p class="field-hint" style="margin:-0.5rem 0 1rem;">Le bouton « Ajouter à mon agenda » télécharge l'événement au format standard (.ics), reconnu par les applications Calendrier/Agenda d'iPhone, Android et ordinateur.</p>
+        <div id="calendrier-groups"></div>
+        <p id="calendrier-empty" class="empty-state hidden">Aucun événement pour le moment.</p>
       </section>
     </main>
 
@@ -589,6 +614,64 @@
         <div class="modal__footer">
           <button type="button" id="btn-dsden-delete" class="btn btn-danger hidden" style="margin-right:auto;">Supprimer</button>
           <button type="button" id="btn-dsden-cancel" class="btn btn-secondary">Annuler</button>
+          <button type="submit" class="btn btn-primary">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================== Modale : contact DSDEN/Rectorat (détail, lecture seule) ===================== -->
+  <div id="modal-dsden-detail-overlay" class="modal-overlay">
+    <div class="modal">
+      <div class="modal__header">
+        <h3 id="modal-dsden-detail-title">Contact</h3>
+        <button id="modal-dsden-detail-close" class="modal__close" aria-label="Fermer">&times;</button>
+      </div>
+      <div class="modal__body">
+        <dl id="dsden-detail-body" class="detail-list"></dl>
+      </div>
+      <div class="modal__footer">
+        <button type="button" id="btn-dsden-detail-fermer" class="btn btn-secondary">Fermer</button>
+        <button type="button" id="btn-dsden-detail-edit" class="btn btn-primary hidden">Modifier</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== Modale : événement (Calendrier) ===================== -->
+  <div id="modal-evenement-overlay" class="modal-overlay">
+    <div class="modal">
+      <div class="modal__header">
+        <h3 id="modal-evenement-title">Ajouter un événement</h3>
+        <button id="modal-evenement-close" class="modal__close" aria-label="Fermer">&times;</button>
+      </div>
+      <form id="form-evenement">
+        <div class="modal__body">
+          <div class="form-field">
+            <label for="ev-titre">Titre *</label>
+            <input class="input" id="ev-titre" name="titre" required />
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="ev-debut">Début *</label>
+              <input class="input" id="ev-debut" name="dateDebut" type="datetime-local" required />
+            </div>
+            <div class="form-field">
+              <label for="ev-fin">Fin</label>
+              <input class="input" id="ev-fin" name="dateFin" type="datetime-local" />
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="ev-lieu">Lieu</label>
+            <input class="input" id="ev-lieu" name="lieu" />
+          </div>
+          <div class="form-field">
+            <label for="ev-description">Description</label>
+            <textarea class="input" id="ev-description" name="description" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal__footer">
+          <button type="button" id="btn-evenement-delete" class="btn btn-danger hidden" style="margin-right:auto;">Supprimer</button>
+          <button type="button" id="btn-evenement-cancel" class="btn btn-secondary">Annuler</button>
           <button type="submit" class="btn btn-primary">Enregistrer</button>
         </div>
       </form>

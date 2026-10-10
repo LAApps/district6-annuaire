@@ -16,6 +16,7 @@ import { initRessources } from "./ressources.js";
 import { initContacts } from "./contacts.js";
 import { initDepot } from "./depot.js";
 import { initContactsDsden } from "./contactsDsden.js";
+import { initCalendrier } from "./calendrier.js";
 import { initImport } from "./import.js";
 import { toast, openModal, closeModal, wireOverlayClose } from "./utils.js";
 
@@ -36,7 +37,7 @@ const btnLogout = document.getElementById("btn-logout");
 const userAvatar = document.getElementById("user-avatar");
 const userName = document.getElementById("user-name");
 
-const initialized = { annuaire: false, ressources: false, contacts: false, depot: false, dsden: false };
+const initialized = { annuaire: false, ressources: false, contacts: false, depot: false, dsden: false, calendrier: false };
 
 // ----- Écran de connexion (e-mail + mot de passe) ----------------------------
 const formAuth = document.getElementById("form-auth");
@@ -238,6 +239,7 @@ document.querySelectorAll(".tab-btn").forEach((btn) => {
     document.querySelectorAll(".view").forEach((v) => v.classList.remove("active"));
     btn.classList.add("active");
     document.getElementById(`view-${btn.dataset.view}`).classList.add("active");
+    closeNavDrawer();
 
     if (btn.dataset.view === "ressources" && !initialized.ressources) {
       initialized.ressources = true;
@@ -255,5 +257,29 @@ document.querySelectorAll(".tab-btn").forEach((btn) => {
       initialized.dsden = true;
       initContactsDsden().catch((err) => toast("Erreur d'initialisation Contacts DSDEN : " + err.message, "error"));
     }
+    if (btn.dataset.view === "calendrier" && !initialized.calendrier) {
+      initialized.calendrier = true;
+      initCalendrier().catch((err) => toast("Erreur d'initialisation Calendrier : " + err.message, "error"));
+    }
   });
 });
+
+// ----- Menu latéral mobile (tiroir) ------------------------------------------
+const navToggle = document.getElementById("btn-nav-toggle");
+const navClose = document.getElementById("btn-nav-close");
+const navOverlay = document.getElementById("nav-overlay");
+const tabsNav = document.getElementById("tabs-nav");
+
+function openNavDrawer() {
+  tabsNav.classList.add("open");
+  navOverlay.classList.add("open");
+  navToggle.setAttribute("aria-expanded", "true");
+}
+function closeNavDrawer() {
+  tabsNav.classList.remove("open");
+  navOverlay.classList.remove("open");
+  navToggle.setAttribute("aria-expanded", "false");
+}
+navToggle.addEventListener("click", openNavDrawer);
+navClose.addEventListener("click", closeNavDrawer);
+navOverlay.addEventListener("click", closeNavDrawer);
