@@ -22,8 +22,8 @@
 // sont la vraie protection — configurez-les avec soin.
 // ============================================================================
 
-export const CLOUDINARY_CLOUD_NAME = "VOTRE_CLOUD_NAME";
-export const CLOUDINARY_UPLOAD_PRESET = "VOTRE_UPLOAD_PRESET";
+export const CLOUDINARY_CLOUD_NAME = "bjafufwx";
+export const CLOUDINARY_UPLOAD_PRESET = "Annuaire D6";
 
 // Taille maximale acceptée pour un fichier déposé (en octets). 10 Mo est un
 // bon compromis pour des PDF/Word/Excel/photos scannées sans saturer le
