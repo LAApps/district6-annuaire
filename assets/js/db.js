@@ -11,6 +11,7 @@ import {
   collection,
   doc,
   addDoc,
+  setDoc,
   updateDoc,
   deleteDoc,
   getDocs,
@@ -30,6 +31,7 @@ const col = {
   documents: collection(db, "documents"),
   contactsDsden: collection(db, "contactsDsden"),
   categoriesDepot: collection(db, "categoriesDepot"),
+  recoverySecrets: collection(db, "recoverySecrets"),
 };
 
 // ----- Listes fixes (thématiques des ressources) ------------------------
@@ -149,6 +151,21 @@ export const CategoriesDepotAPI = {
     }
     return genericList(col.categoriesDepot, "nom");
   },
+};
+
+// ----- Question secrète de récupération de mot de passe ----------------------
+// Document ID = adresse e-mail en minuscules. Jamais lisible depuis le client
+// (voir firestore.rules) : seule la fonction serveur (api/get-question.js,
+// api/reset-password.js, avec les droits Admin SDK) peut la lire.
+export const RecoverySecretsAPI = {
+  set: (email, question, answerHash) =>
+    setDoc(doc(col.recoverySecrets, email.trim().toLowerCase()), {
+      email: email.trim().toLowerCase(),
+      question,
+      answerHash,
+      attempts: [],
+      updatedAt: serverTimestamp(),
+    }),
 };
 
 // ----- Contacts DSDEN / Rectorat ----------------------------------------------

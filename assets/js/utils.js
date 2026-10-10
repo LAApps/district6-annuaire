@@ -39,6 +39,16 @@ export function formatDate(ts) {
   return date.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
+// Hash SHA-256 (hexadécimal) côté navigateur, via l'API Web Crypto native.
+// Utilisé pour ne jamais stocker ni transmettre la réponse secrète en clair.
+export async function sha256Hex(str) {
+  const bytes = new TextEncoder().encode(str);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 export function humanFileSize(bytes) {
   if (!bytes && bytes !== 0) return "";
   const units = ["o", "Ko", "Mo", "Go"];

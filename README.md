@@ -8,6 +8,7 @@ Application web pour les personnels d'encadrement du **district 6 (Seine-Saint-D
 - **Dépôt de documents** : bibliothèque classée par catégorie (Courriers types, Examens collège, Examens LGT, Examens LP, Bulletin académique, Syndicats, DHG, Budget, Infographies par défaut — les administrateurs peuvent en ajouter d'autres à tout moment). Contribution libre, ouverte à tous — chacun peut déposer un lien ou un fichier (PDF, Word, Excel, JPEG, PNG ; 10 Mo maximum) dans la catégorie de son choix. Un avertissement RGPD rappelle que le déposant reste seul responsable du contenu partagé. Chacun peut retirer sa propre contribution ; les administrateurs peuvent retirer n'importe laquelle.
 - **Contacts DSDEN/Rectorat** : annuaire institutionnel (service, nom, prénom, fonction, téléphone, mail). Consultation pour tous ; ajout, modification, suppression et import Excel réservés aux administrateurs.
 - **Import Excel** : les onglets Annuaire, Ressources, Personnes ressources et Contacts DSDEN/Rectorat disposent d'un bouton « Importer un fichier Excel » (+ un bouton pour télécharger un modèle vierge) permettant d'alimenter en masse les données depuis un fichier `.xlsx`/`.xls`/`.csv`.
+- **Mot de passe oublié en libre-service** : à la création du compte, chacun définit une question secrète. En cas d'oubli du mot de passe, il suffit de répondre correctement à sa question pour en choisir un nouveau, sans intervention d'un administrateur. Nécessite une petite fonction serveur (Vercel, gratuit) — voir la section dédiée plus bas.
 
 Charte graphique : identité visuelle de l'État / Éducation nationale (bleu France `#000091`, rouge Marianne `#E1000F`, typographie Marianne).
 
@@ -61,6 +62,32 @@ Pour que le bouton **+ Déposer un document** (upload de fichier) fonctionne, il
 
 **À savoir** : un upload preset non signé est par nature public — son nom est visible dans le code source de l'application. N'importe qui le découvrant pourrait théoriquement envoyer des fichiers vers votre compte Cloudinary (en restant dans les limites de taille/format définies dans le preset). C'est un compromis accepté pour éviter toute carte bancaire ; en cas d'abus constaté, il suffit de supprimer/recréer le preset dans Cloudinary. Les documents retirés depuis l'application (bouton « Retirer ») disparaissent de la liste mais **restent stockés sur Cloudinary** (la suppression réelle du fichier nécessite une clé API signée, volontairement absente du code côté client) — à nettoyer manuellement dans la médiathèque Cloudinary si besoin.
 
+## Mot de passe oublié — réinitialisation en libre-service
+
+Firebase ne permet de réinitialiser un mot de passe que de deux façons : par e-mail (bloqué ici par les messageries académiques, voir plus haut) ou via un serveur disposant des droits d'administration Firebase. Comme l'application n'a pas de serveur, cette fonctionnalité utilise **Vercel** (hébergement gratuit de fonctions serveur, aucune carte bancaire requise) pour héberger deux petites fonctions :
+
+- `api/get-question.js` : renvoie la question secrète associée à un e-mail.
+- `api/reset-password.js` : vérifie la réponse (comparaison de hash SHA-256, jamais en clair) puis change le mot de passe via le SDK Admin Firebase. Limité à 5 tentatives par heure et par compte.
+
+**⚠️ Ces fonctions utilisent une clé de compte de service Firebase, qui donne un accès administrateur complet à votre projet (lecture/écriture/suppression de toutes les données, contournement de toutes les règles Firestore). Cette clé ne doit JAMAIS être commitée dans le dépôt Git ni partagée — elle est stockée uniquement en variable d'environnement sur Vercel.**
+
+### Étapes de configuration
+
+1. **Générer la clé de compte de service** : Firebase Console → ⚙️ **Paramètres du projet** → onglet **Comptes de service** → **Générer une nouvelle clé privée**. Un fichier JSON se télécharge — gardez-le précieusement, ne le partagez à personne, ne le commitez pas.
+2. **Créer un compte Vercel gratuit** sur <https://vercel.com/signup> (connexion possible directement avec votre compte GitHub, aucune carte bancaire demandée).
+3. **Importer ce dépôt** : sur le tableau de bord Vercel, **Add New → Project**, choisissez le dépôt GitHub `district6-annuaire`, laissez les réglages par défaut, cliquez sur **Deploy** (le site statique sera aussi déployé sur Vercel, sans conséquence — seules les fonctions `/api/*` sont utilisées).
+4. **Ajouter les variables d'environnement** : sur le projet Vercel → **Settings → Environment Variables**, ajoutez, à partir du fichier JSON téléchargé à l'étape 1 :
+   - `FIREBASE_PROJECT_ID` → valeur du champ `project_id`
+   - `FIREBASE_CLIENT_EMAIL` → valeur du champ `client_email`
+   - `FIREBASE_PRIVATE_KEY` → valeur du champ `private_key` (collez-la telle quelle, avec les `-----BEGIN PRIVATE KEY-----` ; Vercel gère très bien les valeurs multi-lignes)
+   
+   Puis redéployez le projet (**Deployments → ⋯ → Redeploy**) pour que les variables soient prises en compte.
+5. **Récupérer l'URL du projet** (ex. `https://district6-annuaire.vercel.app`) et la coller dans [`assets/js/recovery-config.js`](assets/js/recovery-config.js) (`RECOVERY_API_BASE_URL`).
+6. **Publier les règles Firestore mises à jour** (collection `recoverySecrets`, voir [`firestore.rules`](firestore.rules)) dans **Firestore Database → Règles**.
+7. Si votre site est hébergé ailleurs que `https://laapps.github.io`, ajoutez son origine dans [`lib/cors.js`](lib/cors.js) (`ALLOWED_ORIGINS`).
+
+Une fois ces étapes faites, chaque nouveau compte créé définit sa question secrète, et le lien « Mot de passe oublié ? » de l'écran de connexion fonctionne de façon autonome. **Les comptes déjà créés avant cette mise à jour n'ont pas de question secrète enregistrée** — pour eux, la récupération reste manuelle (suppression du compte dans Firebase Console → Authentication → Users, puis recréation).
+
 ## 3. Tester en local
 
 Les modules JavaScript (`import`) nécessitent d'être servis via HTTP (pas `file://`). Depuis le dossier du projet :
@@ -109,6 +136,7 @@ Il n'y a que deux niveaux d'accès, tous deux basés sur l'adresse e-mail du com
 | `documents` | `titre`, `categorie` (→ `categoriesDepot`), `type` (`lien`\|`pdf`\|`word`\|`excel`\|`jpeg`\|`png`), `url`, `fileName`, `fileSizeBytes`, `description`, `ajoutePar` |
 | `categoriesDepot` | `nom` |
 | `contactsDsden` | `service`, `nom`, `prenom`, `fonction`, `telephone`, `mail` |
+| `recoverySecrets` | ID = e-mail en minuscules · `question`, `answerHash` (SHA-256), `attempts` — illisible depuis le client, uniquement via le SDK Admin (fonctions Vercel) |
 
 ## Import Excel
 
@@ -126,7 +154,8 @@ Après l'import, un rapport indique le nombre de lignes importées et détaille,
 ## Limites connues / pistes d'évolution
 
 - **Pas de vérification d'adresse e-mail à l'inscription** : comme les messageries académiques bloquent les e-mails automatiques de Firebase, aucun e-mail de confirmation n'est envoyé à la création d'un compte. Rien n'empêche donc techniquement quelqu'un de créer un compte avec l'adresse d'un·e collègue, qui pourrait alors modifier sa fiche — acceptable pour une petite équipe de confiance.
-- **Mot de passe oublié = pas de récupération automatique** (même raison : pas d'e-mail de réinitialisation possible). Si quelqu'un perd son mot de passe, un administrateur du projet Firebase doit supprimer son compte manuellement dans **Authentication → Users** (la personne peut alors recréer un compte avec la même adresse) ; ses données dans l'Annuaire ne sont pas affectées, elles n'appartiennent pas à un compte en particulier.
+- **Mot de passe oublié** : en libre-service via question secrète + fonction Vercel (voir section dédiée) une fois configuré. Sans cette configuration, ou pour les comptes créés avant sa mise en place, la récupération reste manuelle : un administrateur supprime le compte dans **Authentication → Users**, la personne recrée un compte avec la même adresse (ses données dans l'Annuaire ne sont pas affectées, elles n'appartiennent pas à un compte en particulier).
+- **Question secrète en clair côté serveur de vérification** : la réponse n'est jamais stockée ni transmise en clair (hash SHA-256), mais ce n'est pas un hash à itérations lentes (type bcrypt) — suffisant pour un outil interne à faible enjeu, pas pour protéger des données très sensibles.
 - **Pas d'upload de fichiers pour les Ressources** : choix volontaire pour rester sur le forfait gratuit Spark (voir plus haut) ; seul le Dépôt de documents permet un vrai upload, via Cloudinary.
 - **Suppression Cloudinary non synchronisée** : retirer un document depuis l'application l'enlève de la liste mais ne supprime pas le fichier sur Cloudinary (voir section [Dépôt de documents](#dépôt-de-documents--cloudinary)).
 - **Upload preset Cloudinary public** : son nom est visible dans le code source ; les restrictions de taille/format définies dans le preset Cloudinary sont la vraie protection contre les abus, pas une barrière côté application.

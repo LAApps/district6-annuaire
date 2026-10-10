@@ -1,0 +1,9 @@
+{
+  "name": "district6-annuaire-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fonctions serveur (Vercel) pour la réinitialisation de mot de passe en libre-service. Le site principal (index.html) reste 100% statique et n'a pas besoin de ce package.",
+  "dependencies": {
+    "firebase-admin": "^12.6.0"
+  }
+}

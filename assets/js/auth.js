@@ -7,8 +7,10 @@
 // fait qu'offrir une expérience de connexion cohérente.
 // ============================================================================
 
-import { app } from "./db.js";
+import { app, RecoverySecretsAPI } from "./db.js";
 import { ALLOWED_EMAIL_DOMAINS, ADMIN_EMAILS } from "./firebase-config.js";
+import { RECOVERY_API_BASE_URL } from "./recovery-config.js";
+import { sha256Hex } from "./utils.js";
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -54,14 +56,63 @@ function friendlyError(err) {
   return ERROR_MESSAGES[err.code] || err.message;
 }
 
-export async function signup(email, password) {
+export async function signup(email, password, securityQuestion, securityAnswer) {
   if (!isAllowedDomain(email)) throw new Error(domainErrorMessage());
+  if (!securityQuestion || !securityAnswer) {
+    throw new Error("La question secrète et sa réponse sont obligatoires (pour pouvoir récupérer votre compte en cas d'oubli).");
+  }
+  let user;
   try {
     const result = await createUserWithEmailAndPassword(auth, email, password);
-    return result.user;
+    user = result.user;
   } catch (err) {
     throw new Error(friendlyError(err));
   }
+  try {
+    const answerHash = await sha256Hex(securityAnswer.trim().toLowerCase());
+    await RecoverySecretsAPI.set(email, securityQuestion.trim(), answerHash);
+  } catch (err) {
+    throw new Error(
+      "Compte créé, mais la question secrète n'a pas pu être enregistrée (" +
+        err.message +
+        "). Contactez l'administrateur si vous perdez votre mot de passe."
+    );
+  }
+  return user;
+}
+
+// ----- Récupération de mot de passe en libre-service (sans administrateur) ---
+// Passe par une petite fonction serveur (Vercel) qui vérifie la réponse à la
+// question secrète puis réinitialise le mot de passe via le SDK Admin
+// Firebase. Voir api/get-question.js, api/reset-password.js et la section
+// « Mot de passe oublié » du README pour la configuration.
+
+async function callRecoveryApi(path, body) {
+  if (!RECOVERY_API_BASE_URL || RECOVERY_API_BASE_URL === "VOTRE_URL_VERCEL") {
+    throw new Error(
+      "La récupération de mot de passe en libre-service n'est pas encore configurée. Contactez l'administrateur."
+    );
+  }
+  const res = await fetch(`${RECOVERY_API_BASE_URL}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data.error || "Erreur lors de la communication avec le serveur de récupération.");
+  }
+  return data;
+}
+
+export function fetchRecoveryQuestion(email) {
+  return callRecoveryApi("/api/get-question", { email }).then((data) => data.question);
+}
+
+export function resetPasswordWithAnswer(email, answer, newPassword) {
+  if (!isAllowedDomain(email)) throw new Error(domainErrorMessage());
+  if (newPassword.length < 6) throw new Error("Le mot de passe doit contenir au moins 6 caractères.");
+  return callRecoveryApi("/api/reset-password", { email, answer, newPassword });
 }
 
 export async function login(email, password) {

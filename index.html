@@ -20,25 +20,75 @@
       <h1>District 6 — Seine-Saint-Denis</h1>
       <p id="login-intro">Espace réservé aux personnels d'encadrement. Connectez-vous avec votre adresse académique pour accéder à l'annuaire, aux ressources et au réseau des personnes ressources.</p>
 
-      <form id="form-auth">
-        <div class="form-field" style="text-align:left;">
-          <label for="login-email">Adresse e-mail académique</label>
-          <input class="input" id="login-email" name="email" type="email" required autocomplete="username" placeholder="prenom.nom@ac-creteil.fr" style="width:100%;" />
-        </div>
-        <div class="form-field" style="text-align:left;margin-top:.75rem;">
-          <label for="login-password">Mot de passe</label>
-          <input class="input" id="login-password" name="password" type="password" required minlength="6" autocomplete="current-password" style="width:100%;" />
-          <p id="login-password-hint" class="field-hint hidden">6 caractères minimum. Choisissez-le avec soin : sans e-mail de vérification, il n'y a pas de récupération automatique en cas d'oubli.</p>
-        </div>
-        <button type="submit" id="btn-auth-submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:1rem;">
-          Se connecter
-        </button>
-      </form>
+      <div id="panel-login-signup">
+        <form id="form-auth">
+          <div class="form-field" style="text-align:left;">
+            <label for="login-email">Adresse e-mail académique</label>
+            <input class="input" id="login-email" name="email" type="email" required autocomplete="username" placeholder="prenom.nom@ac-creteil.fr" style="width:100%;" />
+          </div>
+          <div class="form-field" style="text-align:left;margin-top:.75rem;">
+            <label for="login-password">Mot de passe</label>
+            <input class="input" id="login-password" name="password" type="password" required minlength="6" autocomplete="current-password" style="width:100%;" />
+            <p id="login-password-hint" class="field-hint hidden">6 caractères minimum.</p>
+          </div>
+          <div id="signup-security-fields" class="hidden">
+            <div class="form-field" style="text-align:left;margin-top:.75rem;">
+              <label for="login-security-question">Question secrète</label>
+              <input class="input" id="login-security-question" name="securityQuestion" placeholder="Ex : Nom de mon premier établissement ?" style="width:100%;" />
+            </div>
+            <div class="form-field" style="text-align:left;margin-top:.75rem;">
+              <label for="login-security-answer">Réponse secrète</label>
+              <input class="input" id="login-security-answer" name="securityAnswer" style="width:100%;" />
+              <p class="field-hint">Elle vous sera redemandée si vous oubliez votre mot de passe, pour le réinitialiser vous-même.</p>
+            </div>
+          </div>
+          <button type="submit" id="btn-auth-submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:1rem;">
+            Se connecter
+          </button>
+        </form>
 
-      <p style="margin-top:1rem;font-size:.85rem;">
-        <span id="login-mode-question">Pas encore de compte ?</span>
-        <a href="#" id="btn-toggle-mode">Créer un compte</a>
-      </p>
+        <p style="margin-top:1rem;font-size:.85rem;">
+          <span id="login-mode-question">Pas encore de compte ?</span>
+          <a href="#" id="btn-toggle-mode">Créer un compte</a>
+        </p>
+        <p id="login-forgot-link" style="margin-top:.4rem;font-size:.85rem;">
+          <a href="#" id="btn-show-recovery">Mot de passe oublié ?</a>
+        </p>
+      </div>
+
+      <div id="panel-recovery" class="hidden">
+        <div id="recovery-step-email">
+          <p style="font-size:.9rem;">Entrez votre adresse pour récupérer votre question secrète.</p>
+          <form id="form-recovery-email">
+            <div class="form-field" style="text-align:left;">
+              <label for="recovery-email">Adresse e-mail académique</label>
+              <input class="input" id="recovery-email" type="email" required placeholder="prenom.nom@ac-creteil.fr" style="width:100%;" />
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:1rem;">Continuer</button>
+          </form>
+        </div>
+        <div id="recovery-step-answer" class="hidden">
+          <p style="font-size:.9rem;font-weight:600;" id="recovery-question-display"></p>
+          <form id="form-recovery-answer">
+            <div class="form-field" style="text-align:left;">
+              <label for="recovery-answer">Votre réponse</label>
+              <input class="input" id="recovery-answer" required style="width:100%;" />
+            </div>
+            <div class="form-field" style="text-align:left;margin-top:.75rem;">
+              <label for="recovery-new-password">Nouveau mot de passe</label>
+              <input class="input" id="recovery-new-password" type="password" required minlength="6" style="width:100%;" />
+            </div>
+            <div class="form-field" style="text-align:left;margin-top:.75rem;">
+              <label for="recovery-new-password-confirm">Confirmer le mot de passe</label>
+              <input class="input" id="recovery-new-password-confirm" type="password" required minlength="6" style="width:100%;" />
+            </div>
+            <button type="submit" id="btn-recovery-submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:1rem;">Réinitialiser mon mot de passe</button>
+          </form>
+        </div>
+        <p style="margin-top:1rem;font-size:.85rem;">
+          <a href="#" id="btn-back-to-login">← Retour à la connexion</a>
+        </p>
+      </div>
 
       <div id="login-error" class="login-error hidden"></div>
     </div>

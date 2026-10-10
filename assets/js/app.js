@@ -2,7 +2,7 @@
 // Orchestration générale : authentification + navigation par onglets.
 // ============================================================================
 
-import { signup, login, logout, onUserChange } from "./auth.js";
+import { signup, login, logout, onUserChange, fetchRecoveryQuestion, resetPasswordWithAnswer } from "./auth.js";
 import { initAnnuaire } from "./annuaire.js";
 import { initRessources } from "./ressources.js";
 import { initContacts } from "./contacts.js";
@@ -28,6 +28,9 @@ const submitBtn = document.getElementById("btn-auth-submit");
 const toggleLink = document.getElementById("btn-toggle-mode");
 const modeQuestion = document.getElementById("login-mode-question");
 const passwordHint = document.getElementById("login-password-hint");
+const securityFields = document.getElementById("signup-security-fields");
+const securityQuestionInput = document.getElementById("login-security-question");
+const securityAnswerInput = document.getElementById("login-security-answer");
 
 let mode = "login"; // "login" | "signup"
 
@@ -37,11 +40,17 @@ function applyMode() {
     modeQuestion.textContent = "Pas encore de compte ?";
     toggleLink.textContent = "Créer un compte";
     passwordHint.classList.add("hidden");
+    securityFields.classList.add("hidden");
+    securityQuestionInput.required = false;
+    securityAnswerInput.required = false;
   } else {
     submitBtn.textContent = "Créer mon compte";
     modeQuestion.textContent = "Déjà un compte ?";
     toggleLink.textContent = "Se connecter";
     passwordHint.classList.remove("hidden");
+    securityFields.classList.remove("hidden");
+    securityQuestionInput.required = true;
+    securityAnswerInput.required = true;
   }
 }
 applyMode();
@@ -62,7 +71,7 @@ formAuth.addEventListener("submit", async (e) => {
   submitBtn.disabled = true;
   try {
     if (mode === "signup") {
-      await signup(email, password);
+      await signup(email, password, securityQuestionInput.value, securityAnswerInput.value);
     } else {
       await login(email, password);
     }
@@ -75,6 +84,89 @@ formAuth.addEventListener("submit", async (e) => {
 });
 
 btnLogout.addEventListener("click", () => logout());
+
+// ----- Mot de passe oublié (récupération en libre-service) -------------------
+const panelLoginSignup = document.getElementById("panel-login-signup");
+const panelRecovery = document.getElementById("panel-recovery");
+const recoveryStepEmail = document.getElementById("recovery-step-email");
+const recoveryStepAnswer = document.getElementById("recovery-step-answer");
+const btnShowRecovery = document.getElementById("btn-show-recovery");
+const btnBackToLogin = document.getElementById("btn-back-to-login");
+const formRecoveryEmail = document.getElementById("form-recovery-email");
+const formRecoveryAnswer = document.getElementById("form-recovery-answer");
+const recoveryQuestionDisplay = document.getElementById("recovery-question-display");
+const recoverySubmitBtn = document.getElementById("btn-recovery-submit");
+
+let recoveryEmail = "";
+
+function showRecoveryPanel() {
+  loginError.classList.add("hidden");
+  panelLoginSignup.classList.add("hidden");
+  panelRecovery.classList.remove("hidden");
+  recoveryStepEmail.classList.remove("hidden");
+  recoveryStepAnswer.classList.add("hidden");
+  formRecoveryEmail.reset();
+  formRecoveryAnswer.reset();
+}
+
+function showLoginPanel(prefillEmail) {
+  loginError.classList.add("hidden");
+  panelRecovery.classList.add("hidden");
+  panelLoginSignup.classList.remove("hidden");
+  mode = "login";
+  applyMode();
+  if (prefillEmail) document.getElementById("login-email").value = prefillEmail;
+}
+
+btnShowRecovery.addEventListener("click", (e) => {
+  e.preventDefault();
+  showRecoveryPanel();
+});
+btnBackToLogin.addEventListener("click", (e) => {
+  e.preventDefault();
+  showLoginPanel();
+});
+
+formRecoveryEmail.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  loginError.classList.add("hidden");
+  recoveryEmail = document.getElementById("recovery-email").value.trim();
+  try {
+    const question = await fetchRecoveryQuestion(recoveryEmail);
+    recoveryQuestionDisplay.textContent = question;
+    recoveryStepEmail.classList.add("hidden");
+    recoveryStepAnswer.classList.remove("hidden");
+  } catch (err) {
+    loginError.textContent = err.message;
+    loginError.classList.remove("hidden");
+  }
+});
+
+formRecoveryAnswer.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  loginError.classList.add("hidden");
+  const answer = document.getElementById("recovery-answer").value;
+  const newPassword = document.getElementById("recovery-new-password").value;
+  const confirmPassword = document.getElementById("recovery-new-password-confirm").value;
+
+  if (newPassword !== confirmPassword) {
+    loginError.textContent = "Les deux mots de passe ne correspondent pas.";
+    loginError.classList.remove("hidden");
+    return;
+  }
+
+  recoverySubmitBtn.disabled = true;
+  try {
+    await resetPasswordWithAnswer(recoveryEmail, answer, newPassword);
+    toast("Mot de passe réinitialisé. Vous pouvez vous reconnecter.", "success");
+    showLoginPanel(recoveryEmail);
+  } catch (err) {
+    loginError.textContent = err.message;
+    loginError.classList.remove("hidden");
+  } finally {
+    recoverySubmitBtn.disabled = false;
+  }
+});
 
 onUserChange((user) => {
   if (user) {

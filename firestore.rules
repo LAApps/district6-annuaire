@@ -88,5 +88,18 @@ service cloud.firestore {
       allow read: if isAcademicUser();
       allow create, update, delete: if isAdmin();
     }
+
+    // Question secrète de récupération de mot de passe : l'ID du document EST
+    // l'adresse e-mail (en minuscules). Personne ne peut la LIRE depuis le
+    // client (même pas son propriétaire) — seule la fonction serveur Vercel,
+    // via le SDK Admin qui contourne ces règles, peut la consulter pour
+    // vérifier la réponse et réinitialiser le mot de passe. Chacun peut créer
+    // ou mettre à jour uniquement SA PROPRE question (document dont l'ID
+    // correspond à son adresse de connexion).
+    match /recoverySecrets/{emailId} {
+      allow read: if false;
+      allow create, update: if isAcademicUser() && request.auth.token.email.lower() == emailId;
+      allow delete: if false;
+    }
   }
 }
