@@ -23,7 +23,7 @@ export const firebaseConfig = {
 export const ALLOWED_EMAIL_DOMAINS = ["ac-creteil.fr"];
 
 // Adresse e-mail de l'administrateur de l'application (bouton "Contacter l'administrateur").
-export const ADMIN_EMAIL = "lazzouzi@ac-creteil.fr";
+export const ADMIN_EMAIL = "lhaj.azzouzi@ac-creteil.fr";
 
 // Adresses ayant les droits d'administration (import Excel, ajout/suppression
 // de ressources, thèmes, personnes ressources, et modification de n'importe
@@ -32,7 +32,7 @@ export const ADMIN_EMAIL = "lazzouzi@ac-creteil.fr";
 // adresse de connexion).
 // IMPORTANT : cette liste doit être répétée à l'identique dans firestore.rules
 // (fonction isAdmin()) — c'est là qu'est la vraie barrière de sécurité.
-export const ADMIN_EMAILS = ["lazzouzi@ac-creteil.fr"];
+export const ADMIN_EMAILS = ["lhaj.azzouzi@ac-creteil.fr"];
 
 // Nom affiché dans l'en-tête.
 export const APP_TITLE = "District 6 — Seine-Saint-Denis";

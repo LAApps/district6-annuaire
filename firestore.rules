@@ -17,7 +17,7 @@ service cloud.firestore {
     // Liste à tenir identique à ADMIN_EMAILS dans firebase-config.js.
     function isAdmin() {
       return isAcademicUser()
-        && request.auth.token.email.lower() in ['lazzouzi@ac-creteil.fr'];
+        && request.auth.token.email.lower() in ['lhaj.azzouzi@ac-creteil.fr'];
     }
 
     function ownsAnnuaireDoc(data) {
