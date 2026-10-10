@@ -3,7 +3,7 @@
 // Utilise la librairie SheetJS (global `XLSX`, chargée en CDN dans index.html).
 // ============================================================================
 
-import { AnnuaireAPI, RessourcesAPI, ThemesReseauAPI, PersonnesRessourcesAPI, THEMATIQUES_RESSOURCES } from "./db.js";
+import { AnnuaireAPI, RessourcesAPI, ThemesReseauAPI, PersonnesRessourcesAPI, ContactsDsdenAPI, THEMATIQUES_RESSOURCES } from "./db.js";
 import { toast, openModal, closeModal, escapeHtml } from "./utils.js";
 
 let currentType = null;
@@ -45,6 +45,22 @@ const TEMPLATES = {
     sheetName: "PersonnesRessources",
     fileName: "modele-personnes-ressources.xlsx",
     sampleRows: [{ Thème: "Budget", Nom: "Dupont", Prénom: "Marie", Note: "Disponible le matin uniquement" }],
+  },
+  "contacts-dsden": {
+    title: "Importer des contacts DSDEN / Rectorat depuis Excel",
+    instructions: "Colonnes attendues : Service, Nom, Prénom, Fonction, Téléphone, Mail. Au moins le Service ou le Nom doit être renseigné.",
+    sheetName: "ContactsDSDEN",
+    fileName: "modele-contacts-dsden.xlsx",
+    sampleRows: [
+      {
+        Service: "DSDEN 93 — Division des personnels",
+        Nom: "Martin",
+        Prénom: "Claire",
+        Fonction: "Gestionnaire",
+        Téléphone: "0140000000",
+        Mail: "claire.martin@ac-creteil.fr",
+      },
+    ],
   },
 };
 
@@ -140,7 +156,8 @@ async function runImport() {
     let report;
     if (currentType === "annuaire") report = await importAnnuaire(rows);
     else if (currentType === "ressources") report = await importRessources(rows);
-    else report = await importPersonnesRessources(rows);
+    else if (currentType === "personnes-ressources") report = await importPersonnesRessources(rows);
+    else report = await importContactsDsden(rows);
 
     showReport(report);
     if (report.added > 0 && onImportedCallback) await onImportedCallback();
@@ -277,6 +294,35 @@ async function importPersonnesRessources(rows) {
     }
     try {
       await PersonnesRessourcesAPI.add({ themeId: theme.id, annuaireId: person.id, note });
+      report.added++;
+    } catch (err) {
+      report.errors.push({ row: i + 2, message: err.message });
+    }
+  }
+  return report;
+}
+
+// ----- Import Contacts DSDEN / Rectorat ---------------------------------------
+async function importContactsDsden(rows) {
+  const report = { total: rows.length, added: 0, errors: [] };
+  for (let i = 0; i < rows.length; i++) {
+    const n = normalizeRow(rows[i]);
+    const service = pick(n, ["service"]);
+    const nom = pick(n, ["nom"]);
+    if (!service && !nom) {
+      report.errors.push({ row: i + 2, message: "Le Service ou le Nom est obligatoire." });
+      continue;
+    }
+    const data = {
+      service,
+      nom,
+      prenom: pick(n, ["prenom"]),
+      fonction: pick(n, ["fonction"]),
+      telephone: pick(n, ["telephone", "tel", "telephonefixe", "portable"]),
+      mail: pick(n, ["mail", "email", "courriel"]),
+    };
+    try {
+      await ContactsDsdenAPI.add(data);
       report.added++;
     } catch (err) {
       report.errors.push({ row: i + 2, message: err.message });

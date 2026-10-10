@@ -60,5 +60,26 @@ service cloud.firestore {
         && (isAdmin() || (isOwnPersonneRessource(resource.data) && isOwnPersonneRessource(request.resource.data)));
       allow delete: if isAcademicUser() && (isAdmin() || isOwnPersonneRessource(resource.data));
     }
+
+    // Dépôt de documents : contribution libre à tous les utilisateurs
+    // académiques, mais seul l'auteur (ou un administrateur) peut retirer
+    // sa propre contribution.
+    function isOwnDocument(data) {
+      return data.ajoutePar is string
+        && data.ajoutePar.lower() == request.auth.token.email.lower();
+    }
+
+    match /documents/{docId} {
+      allow read: if isAcademicUser();
+      allow create: if isAcademicUser() && isOwnDocument(request.resource.data);
+      allow delete: if isAcademicUser() && (isAdmin() || isOwnDocument(resource.data));
+    }
+
+    // Contacts DSDEN / Rectorat : consultation pour tous, gestion réservée
+    // aux administrateurs (y compris l'import Excel).
+    match /contactsDsden/{docId} {
+      allow read: if isAcademicUser();
+      allow create, update, delete: if isAdmin();
+    }
   }
 }

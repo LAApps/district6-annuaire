@@ -71,6 +71,8 @@
         <button class="tab-btn active" data-view="annuaire">Annuaire</button>
         <button class="tab-btn" data-view="ressources">Ressources</button>
         <button class="tab-btn" data-view="contacts">Personnes ressources</button>
+        <button class="tab-btn" data-view="depot">Dépôt de documents</button>
+        <button class="tab-btn" data-view="dsden">Contacts DSDEN/Rectorat</button>
       </nav>
     </header>
 
@@ -137,6 +139,52 @@
         <div id="theme-grid" class="theme-grid"></div>
         <p id="contact-hint" class="empty-state">Sélectionnez un thème ci-dessus pour afficher la ou les personnes ressources associées.</p>
         <div id="contact-list" class="contact-list"></div>
+      </section>
+
+      <!-- ===================== Vue Dépôt de documents ===================== -->
+      <section id="view-depot" class="view">
+        <div class="view-header">
+          <h2>Dépôt de documents</h2>
+          <div class="view-actions">
+            <button id="btn-depot-add" class="btn btn-primary">+ Déposer un document</button>
+          </div>
+        </div>
+        <div class="toolbar">
+          <input id="depot-search" class="input search-input" type="search" placeholder="Rechercher un document…" />
+        </div>
+        <div id="depot-grid" class="resource-grid"></div>
+        <p id="depot-empty" class="empty-state hidden">Aucun document déposé pour le moment.</p>
+      </section>
+
+      <!-- ===================== Vue Contacts DSDEN/Rectorat ===================== -->
+      <section id="view-dsden" class="view">
+        <div class="view-header">
+          <h2>Contacts DSDEN / Rectorat</h2>
+          <div class="view-actions">
+            <button id="btn-dsden-import" class="btn btn-secondary">Importer un fichier Excel</button>
+            <button id="btn-dsden-add" class="btn btn-primary">+ Ajouter un contact</button>
+          </div>
+        </div>
+        <div class="toolbar">
+          <input id="dsden-search" class="input search-input" type="search" placeholder="Rechercher (service, nom, prénom, fonction, mail)…" />
+        </div>
+        <div class="table-wrap">
+          <table class="annuaire-table">
+            <thead>
+              <tr>
+                <th>Service</th>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Fonction</th>
+                <th>Téléphone</th>
+                <th>Mail</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="dsden-tbody"></tbody>
+          </table>
+        </div>
+        <p id="dsden-empty" class="empty-state hidden">Aucun contact DSDEN/Rectorat pour le moment.</p>
       </section>
     </main>
 
@@ -290,6 +338,105 @@
         <div class="modal__footer">
           <button type="button" id="btn-personne-ressource-cancel" class="btn btn-secondary">Annuler</button>
           <button type="submit" class="btn btn-primary">Ajouter</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================== Modale : dépôt de document ===================== -->
+  <div id="modal-depot-overlay" class="modal-overlay">
+    <div class="modal">
+      <div class="modal__header">
+        <h3>Déposer un document</h3>
+        <button id="modal-depot-close" class="modal__close" aria-label="Fermer">&times;</button>
+      </div>
+      <form id="form-depot">
+        <div class="modal__body">
+          <div class="notice-box">
+            <span>⚠️</span>
+            <span>
+              <strong>Responsabilité RGPD :</strong> en déposant ce document, vous certifiez qu'il ne contient pas de données personnelles sensibles non autorisées (santé, vie privée, opinions, données d'élèves sans base légale…) et vous restez seul·e responsable du contenu partagé. Taille maximale par fichier : <strong id="depot-max-size-label">10 Mo</strong>.
+            </span>
+          </div>
+          <div class="form-field">
+            <label for="depot-titre">Titre *</label>
+            <input class="input" id="depot-titre" name="titre" required />
+          </div>
+          <div class="form-field">
+            <label>Type de contribution *</label>
+            <div style="display:flex;gap:1rem;">
+              <label style="font-weight:400;"><input type="radio" name="depotType" value="lien" checked /> Lien</label>
+              <label style="font-weight:400;"><input type="radio" name="depotType" value="fichier" /> Fichier</label>
+            </div>
+          </div>
+          <div id="champ-depot-lien" class="form-field">
+            <label for="depot-url">URL du lien *</label>
+            <input class="input" id="depot-url" name="url" type="url" placeholder="https://…" />
+          </div>
+          <div id="champ-depot-fichier" class="form-field hidden">
+            <label for="depot-fichier">Fichier (PDF, Word, Excel, JPEG, PNG) *</label>
+            <input class="input" id="depot-fichier" type="file" />
+            <p id="depot-file-size-hint" class="file-size-hint"></p>
+          </div>
+          <div class="form-field">
+            <label for="depot-description">Description (optionnel)</label>
+            <textarea class="input" id="depot-description" name="description" rows="3"></textarea>
+          </div>
+          <label class="checkbox-field">
+            <input type="checkbox" id="depot-rgpd-check" required />
+            <span>Je confirme avoir pris connaissance de l'avertissement RGPD ci-dessus et j'assume la responsabilité du contenu que je partage.</span>
+          </label>
+        </div>
+        <div class="modal__footer">
+          <button type="button" id="btn-depot-cancel" class="btn btn-secondary">Annuler</button>
+          <button type="submit" id="btn-depot-submit" class="btn btn-primary">Déposer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================== Modale : contact DSDEN/Rectorat ===================== -->
+  <div id="modal-dsden-overlay" class="modal-overlay">
+    <div class="modal">
+      <div class="modal__header">
+        <h3 id="modal-dsden-title">Ajouter un contact</h3>
+        <button id="modal-dsden-close" class="modal__close" aria-label="Fermer">&times;</button>
+      </div>
+      <form id="form-dsden">
+        <div class="modal__body">
+          <div class="form-field">
+            <label for="d-service">Service</label>
+            <input class="input" id="d-service" name="service" placeholder="Ex : DSDEN 93 — Division des personnels" />
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="d-nom">Nom</label>
+              <input class="input" id="d-nom" name="nom" />
+            </div>
+            <div class="form-field">
+              <label for="d-prenom">Prénom</label>
+              <input class="input" id="d-prenom" name="prenom" />
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="d-fonction">Fonction</label>
+            <input class="input" id="d-fonction" name="fonction" />
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="d-telephone">Téléphone</label>
+              <input class="input" id="d-telephone" name="telephone" type="tel" />
+            </div>
+            <div class="form-field">
+              <label for="d-mail">Mail</label>
+              <input class="input" id="d-mail" name="mail" type="email" />
+            </div>
+          </div>
+        </div>
+        <div class="modal__footer">
+          <button type="button" id="btn-dsden-delete" class="btn btn-danger hidden" style="margin-right:auto;">Supprimer</button>
+          <button type="button" id="btn-dsden-cancel" class="btn btn-secondary">Annuler</button>
+          <button type="submit" class="btn btn-primary">Enregistrer</button>
         </div>
       </form>
     </div>

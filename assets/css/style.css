@@ -411,6 +411,54 @@ table.annuaire-table tr:hover td {
 .resource-type-icon.type-lien {
   background: var(--bleu-france);
 }
+.resource-type-icon.type-word {
+  background: #2b579a;
+}
+.resource-type-icon.type-excel {
+  background: var(--vert-succes);
+}
+.resource-type-icon.type-jpeg,
+.resource-type-icon.type-png {
+  background: #8a3ffc;
+}
+.resource-type-icon.type-fichier {
+  background: var(--gris-texte-mute);
+}
+
+/* ----- Encart d'avertissement (RGPD, taille de fichier) ------------------- */
+.notice-box {
+  background: var(--orange-alerte-bg);
+  border: 1px solid var(--orange-alerte);
+  border-radius: var(--rayon);
+  padding: 0.85rem 1rem;
+  font-size: 0.85rem;
+  color: var(--gris-texte);
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+}
+.notice-box strong {
+  color: var(--orange-alerte);
+}
+.file-size-hint {
+  font-size: 0.78rem;
+  color: var(--gris-texte-mute);
+  margin-top: 0.3rem;
+}
+.file-size-hint.error {
+  color: var(--rouge-marianne);
+  font-weight: 600;
+}
+.checkbox-field {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+.checkbox-field input[type="checkbox"] {
+  margin-top: 0.2rem;
+  flex: none;
+}
 .resource-card__title {
   font-weight: 700;
   font-size: 0.96rem;

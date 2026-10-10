@@ -27,6 +27,8 @@ const col = {
   ressources: collection(db, "ressources"),
   themesReseau: collection(db, "themesReseau"),
   personnesRessources: collection(db, "personnesRessources"),
+  documents: collection(db, "documents"),
+  contactsDsden: collection(db, "contactsDsden"),
 };
 
 // ----- Listes fixes (thématiques des ressources) ------------------------
@@ -109,4 +111,21 @@ export const PersonnesRessourcesAPI = {
   list: () => genericList(col.personnesRessources, "createdAt"),
   add: (data) => genericAdd(col.personnesRessources, data),
   remove: (id) => genericDelete(col.personnesRessources, id),
+};
+
+// ----- Dépôt de documents ----------------------------------------------------
+// Contributions libres (lien ou fichier hébergé sur Cloudinary) de tous les
+// utilisateurs. Voir assets/js/depot.js et assets/js/cloudinary-config.js.
+export const DocumentsAPI = {
+  list: () => genericList(col.documents, "createdAt"),
+  add: (data) => genericAdd(col.documents, data),
+  remove: (id) => genericDelete(col.documents, id),
+};
+
+// ----- Contacts DSDEN / Rectorat ----------------------------------------------
+export const ContactsDsdenAPI = {
+  list: () => genericList(col.contactsDsden, "service"),
+  add: (data) => genericAdd(col.contactsDsden, data),
+  update: (id, data) => genericUpdate(col.contactsDsden, id, data),
+  remove: (id) => genericDelete(col.contactsDsden, id),
 };

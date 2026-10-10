@@ -6,6 +6,8 @@ import { signup, login, logout, onUserChange } from "./auth.js";
 import { initAnnuaire } from "./annuaire.js";
 import { initRessources } from "./ressources.js";
 import { initContacts } from "./contacts.js";
+import { initDepot } from "./depot.js";
+import { initContactsDsden } from "./contactsDsden.js";
 import { initImport } from "./import.js";
 import { toast } from "./utils.js";
 
@@ -18,7 +20,7 @@ const btnLogout = document.getElementById("btn-logout");
 const userAvatar = document.getElementById("user-avatar");
 const userName = document.getElementById("user-name");
 
-const initialized = { annuaire: false, ressources: false, contacts: false };
+const initialized = { annuaire: false, ressources: false, contacts: false, depot: false, dsden: false };
 
 // ----- Écran de connexion (e-mail + mot de passe) ----------------------------
 const formAuth = document.getElementById("form-auth");
@@ -108,6 +110,14 @@ document.querySelectorAll(".tab-btn").forEach((btn) => {
     if (btn.dataset.view === "contacts" && !initialized.contacts) {
       initialized.contacts = true;
       initContacts().catch((err) => toast("Erreur d'initialisation Personnes ressources : " + err.message, "error"));
+    }
+    if (btn.dataset.view === "depot" && !initialized.depot) {
+      initialized.depot = true;
+      initDepot().catch((err) => toast("Erreur d'initialisation Dépôt de documents : " + err.message, "error"));
+    }
+    if (btn.dataset.view === "dsden" && !initialized.dsden) {
+      initialized.dsden = true;
+      initContactsDsden().catch((err) => toast("Erreur d'initialisation Contacts DSDEN : " + err.message, "error"));
     }
   });
 });
