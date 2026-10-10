@@ -21,6 +21,8 @@ let allEntries = [];
 let themes = [];
 let personnesRessources = [];
 let searchTerm = "";
+let filterFonction = "";
+let filterEtablissement = "";
 let editingId = null;
 
 const els = {};
@@ -37,16 +39,34 @@ export async function initAnnuaire() {
   els.deleteBtn = document.getElementById("btn-annuaire-delete");
   els.themesList = document.getElementById("f-themes-list");
   els.villeSelect = document.getElementById("f-ville");
+  els.filterFonction = document.getElementById("annuaire-filter-fonction");
+  els.filterEtablissement = document.getElementById("annuaire-filter-etablissement");
+  els.detailTitle = document.getElementById("modal-annuaire-detail-title");
+  els.detailBody = document.getElementById("annuaire-detail-body");
+  els.detailEditBtn = document.getElementById("btn-annuaire-detail-edit");
+  els.detailDeleteBtn = document.getElementById("btn-annuaire-detail-delete");
 
   els.villeSelect.innerHTML =
     `<option value="">—</option>` + VILLES_DISTRICT.map((v) => `<option value="${v}">${v}</option>`).join("");
 
   wireOverlayClose("modal-annuaire-overlay");
+  wireOverlayClose("modal-annuaire-detail-overlay");
 
   els.search.addEventListener("input", () => {
     searchTerm = els.search.value.trim().toLowerCase();
     render();
   });
+  els.filterFonction.addEventListener("change", () => {
+    filterFonction = els.filterFonction.value;
+    render();
+  });
+  els.filterEtablissement.addEventListener("change", () => {
+    filterEtablissement = els.filterEtablissement.value;
+    render();
+  });
+
+  document.getElementById("modal-annuaire-detail-close").addEventListener("click", () => closeModal("modal-annuaire-detail-overlay"));
+  document.getElementById("btn-annuaire-detail-fermer").addEventListener("click", () => closeModal("modal-annuaire-detail-overlay"));
 
   els.addBtn.addEventListener("click", () => openForm(null));
   els.importBtn.addEventListener("click", () => openImportModal("annuaire", loadAndRender));
@@ -85,7 +105,35 @@ async function loadAndRender() {
     toast("Impossible de charger l'annuaire : " + err.message, "error");
     allEntries = [];
   }
+  populateFilters();
   render();
+}
+
+// Reconstruit les options des filtres Fonction / Établissement à partir des
+// valeurs réellement présentes dans l'annuaire, en conservant la sélection
+// en cours si elle existe toujours.
+function populateFilters() {
+  const buildOptions = (select, values, allLabel, current) => {
+    const unique = Array.from(new Set(values.filter(Boolean))).sort((a, b) => a.localeCompare(b, "fr"));
+    const keep = unique.includes(current) ? current : "";
+    select.innerHTML =
+      `<option value="">${allLabel}</option>` + unique.map((v) => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
+    select.value = keep;
+    return keep;
+  };
+
+  filterFonction = buildOptions(
+    els.filterFonction,
+    allEntries.map((e) => e.fonction),
+    "Toutes les fonctions",
+    filterFonction
+  );
+  filterEtablissement = buildOptions(
+    els.filterEtablissement,
+    allEntries.map((e) => e.etablissement),
+    "Tous les établissements",
+    filterEtablissement
+  );
 }
 
 async function loadThemesAndLinks() {
@@ -124,6 +172,8 @@ function exportToExcel() {
 }
 
 function matches(entry, term) {
+  if (filterFonction && entry.fonction !== filterFonction) return false;
+  if (filterEtablissement && entry.etablissement !== filterEtablissement) return false;
   if (!term) return true;
   const haystack = [entry.nom, entry.prenom, entry.fonction, entry.etablissement, entry.ville, entry.mail]
     .join(" ")
@@ -161,14 +211,16 @@ function render() {
     .join("");
 
   els.tbody.querySelectorAll('[data-action="edit"]').forEach((btn) => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
       const entry = allEntries.find((e) => e.id === btn.dataset.id);
       openForm(entry);
     });
   });
 
   els.tbody.querySelectorAll('[data-action="delete"]').forEach((btn) => {
-    btn.addEventListener("click", async () => {
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
       const entry = allEntries.find((e) => e.id === btn.dataset.id);
       if (!entry) return;
       if (!confirm(`Supprimer définitivement la fiche de ${entry.prenom} ${entry.nom} ?`)) return;
@@ -181,6 +233,58 @@ function render() {
       }
     });
   });
+
+  // Clic sur la ligne (hors liens/boutons) : ouvre la fiche détaillée —
+  // utile surtout sur mobile, où seules Nom/Prénom/Fonction/Établissement
+  // sont visibles par défaut.
+  els.tbody.querySelectorAll("tr").forEach((tr) => {
+    tr.addEventListener("click", (e) => {
+      if (e.target.closest("a, button")) return;
+      const entry = allEntries.find((en) => en.id === tr.dataset.id);
+      if (entry) openDetail(entry);
+    });
+  });
+}
+
+function openDetail(entry) {
+  const admin = isCurrentUserAdmin();
+  els.detailTitle.textContent = `${entry.prenom} ${entry.nom}`.trim();
+
+  const rows = [
+    ["Fonction", entry.fonction ? escapeHtml(entry.fonction) : ""],
+    ["Établissement", entry.etablissement ? escapeHtml(entry.etablissement) : ""],
+    ["Ville", entry.ville ? escapeHtml(entry.ville) : ""],
+    ["Portable", entry.portable ? `<a href="${telHref(entry.portable)}">${escapeHtml(entry.portable)}</a>` : ""],
+    ["Ligne fixe", entry.fixe ? `<a href="${telHref(entry.fixe)}">${escapeHtml(entry.fixe)}</a>` : ""],
+    ["Mail", entry.mail ? `<a href="mailto:${escapeHtml(entry.mail)}">${escapeHtml(entry.mail)}</a>` : ""],
+  ].filter(([, value]) => value);
+
+  els.detailBody.innerHTML = rows.map(([label, value]) => `<dt>${label}</dt><dd>${value}</dd>`).join("");
+  if (rows.length === 0) {
+    els.detailBody.innerHTML = `<p class="field-hint" style="margin:0;">Aucune information complémentaire.</p>`;
+  }
+
+  const canEdit = admin || isOwnAnnuaireEntry(entry);
+  els.detailEditBtn.classList.toggle("hidden", !canEdit);
+  els.detailEditBtn.onclick = () => {
+    closeModal("modal-annuaire-detail-overlay");
+    openForm(entry);
+  };
+
+  els.detailDeleteBtn.classList.toggle("hidden", !admin);
+  els.detailDeleteBtn.onclick = async () => {
+    if (!confirm(`Supprimer définitivement la fiche de ${entry.prenom} ${entry.nom} ?`)) return;
+    try {
+      await AnnuaireAPI.remove(entry.id);
+      toast("Fiche supprimée.", "success");
+      closeModal("modal-annuaire-detail-overlay");
+      await loadAndRender();
+    } catch (err) {
+      toast("Erreur lors de la suppression : " + err.message, "error");
+    }
+  };
+
+  openModal("modal-annuaire-detail-overlay");
 }
 
 function openForm(entry) {

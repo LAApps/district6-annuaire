@@ -404,6 +404,37 @@ table.annuaire-table tr:hover td {
   table.annuaire-table td.cell-actions::before {
     display: none;
   }
+
+  /* Annuaire uniquement : sur mobile, on ne montre que Nom / Prénom /
+     Fonction / Établissement par défaut — le reste est accessible en
+     cliquant sur la ligne (fiche détaillée). */
+  #annuaire-main-table td[data-label="Ville"],
+  #annuaire-main-table td[data-label="Portable"],
+  #annuaire-main-table td[data-label="Ligne fixe"],
+  #annuaire-main-table td[data-label="Mail"],
+  #annuaire-main-table td.cell-actions {
+    display: none;
+  }
+}
+
+#annuaire-tbody tr {
+  cursor: pointer;
+}
+
+/* ----- Fiche détaillée (modale lecture seule) ------------------------------ */
+.detail-list {
+  margin: 0;
+  font-size: 0.92rem;
+}
+.detail-list dt {
+  font-weight: 600;
+  color: var(--gris-texte-mute);
+  float: left;
+  clear: left;
+  width: 110px;
+}
+.detail-list dd {
+  margin: 0 0 0.6rem 110px;
 }
 
 /* ----- Ressources : groupes par thématique ---------------------------------- */
