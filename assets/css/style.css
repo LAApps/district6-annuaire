@@ -871,6 +871,49 @@ table.annuaire-table tr:hover td {
   text-align: left;
 }
 
+/* ----- Bouton flottant Urgence DSDEN — toujours accessible, y compris avant
+   connexion et par-dessus les modales, quel que soit l'endroit où on se
+   trouve dans l'application. ------------------------------------------------ */
+.btn-urgence {
+  position: fixed;
+  right: 1rem;
+  bottom: 5.25rem;
+  z-index: 260;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  background: var(--rouge-marianne);
+  color: var(--blanc);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.82rem;
+  line-height: 1.2;
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  white-space: nowrap;
+}
+.btn-urgence:hover {
+  background: var(--rouge-marianne-hover);
+}
+.btn-urgence__num {
+  font-weight: 400;
+  font-size: 0.72rem;
+}
+@media (max-width: 480px) {
+  .btn-urgence {
+    right: 0.75rem;
+    bottom: 4.75rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.76rem;
+  }
+  .btn-urgence__num {
+    font-size: 0.66rem;
+  }
+}
+
 /* ----- Toast / notifications ------------------------------------------------ */
 .toast {
   position: fixed;

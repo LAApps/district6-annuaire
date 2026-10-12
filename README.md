@@ -2,6 +2,8 @@
 
 Application web pour les personnels d'encadrement du **district 6 (Seine-Saint-Denis)** :
 
+- **Urgence DSDEN** : bouton flottant rouge toujours visible (en bas à droite de l'écran, quel que soit l'endroit où on se trouve dans l'application, y compris avant connexion) qui appelle directement le numéro d'urgence DSDEN (7j/7, 24h/24) en un tap.
+
 - **Annuaire** : nom, prénom, fonction, établissement, portable, fixe, mail. Chacun peut ajouter sa propre fiche et la modifier ; les administrateurs peuvent gérer toutes les fiches, les supprimer directement depuis le tableau (utile pour retirer les personnes qui quittent le district) et exporter l'annuaire complet en un clic (bouton « Exporter en Excel »). Depuis la fiche, chacun peut aussi cocher les thèmes pour lesquels il/elle souhaite apparaître comme personne ressource — ça alimente automatiquement l'onglet Personnes ressources, sans passer par ce dernier.
 - **Ressources** : liens, PDF, ZIP classés par thématique (budget, DHG, management, montage de projet, IA, évaluations, syndicats, textes officiels, bulletins académiques, bulletins départementaux, courriers types, documents types). Consultation et téléchargement pour tous ; ajout/suppression réservés aux administrateurs. Contact administrateur.
 - **Personnes ressources** : recherche par thème (budget, DHG, EDT, IA, bureautique/informatique, RH, gestion de crises, CPS, EVARS, évaluations nationales) → personnes à contacter (données reprises de l'Annuaire). Consultation pour tous ; chacun peut se déclarer soi-même comme personne ressource sur un thème existant (il faut d'abord avoir sa propre fiche dans l'Annuaire) ; création de thème et déclaration d'un·e collègue réservées aux administrateurs.
