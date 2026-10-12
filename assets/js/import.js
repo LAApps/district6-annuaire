@@ -11,8 +11,10 @@ import {
   ContactsDsdenAPI,
   THEMATIQUES_RESSOURCES,
   VILLES_DISTRICT,
+  FONCTIONS_DISTRICT,
+  ETABLISSEMENTS_DISTRICT,
 } from "./db.js";
-import { toast, openModal, closeModal, escapeHtml, toUpperFr, capitalizeWords, capitalizeFirst } from "./utils.js";
+import { toast, openModal, closeModal, escapeHtml, toUpperFr, capitalizeWords, capitalizeFirst, formatPhoneFr } from "./utils.js";
 
 let currentType = null;
 let onImportedCallback = null;
@@ -20,15 +22,15 @@ let onImportedCallback = null;
 const TEMPLATES = {
   annuaire: {
     title: "Importer l'annuaire depuis Excel",
-    instructions: "Colonnes attendues : Nom, Prénom, Fonction, Établissement, Ville, Portable, Fixe, Mail. Nom et Prénom sont obligatoires. Ville doit être l'une de : BAGNOLET, NOISY LE SEC, MONTREUIL, ROMAINVILLE, ROSNY-SOUS-BOIS.",
+    instructions: `Colonnes attendues : Nom, Prénom, Fonction, Établissement, Ville, Portable, Fixe, Mail. Nom et Prénom sont obligatoires. Fonction doit être l'une de : ${FONCTIONS_DISTRICT.join(", ")}. Établissement doit être l'un des établissements du district (voir le menu déroulant de la fiche). Ville doit être l'une de : ${VILLES_DISTRICT.join(", ")}.`,
     sheetName: "Annuaire",
     fileName: "modele-annuaire.xlsx",
     sampleRows: [
       {
         Nom: "Dupont",
         Prénom: "Marie",
-        Fonction: "Principale",
-        Établissement: "Collège Jean Moulin",
+        Fonction: "Chef.fe d'établissement",
+        Établissement: "COLLEGE JEAN MOULIN",
         Ville: "MONTREUIL",
         Portable: "0600000000",
         Fixe: "0140000000",
@@ -215,14 +217,40 @@ async function importAnnuaire(rows) {
       }
       ville = match;
     }
+    const fonctionRaw = pick(n, ["fonction"]);
+    let fonction = "";
+    if (fonctionRaw) {
+      const match = FONCTIONS_DISTRICT.find((f) => normalizeKey(f) === normalizeKey(fonctionRaw));
+      if (!match) {
+        report.errors.push({
+          row: i + 2,
+          message: `Fonction « ${fonctionRaw} » inconnue (attendu : ${FONCTIONS_DISTRICT.join(", ")}).`,
+        });
+        continue;
+      }
+      fonction = match;
+    }
+    const etablissementRaw = pick(n, ["etablissement"]);
+    let etablissement = "";
+    if (etablissementRaw) {
+      const match = ETABLISSEMENTS_DISTRICT.find((e) => normalizeKey(e) === normalizeKey(etablissementRaw));
+      if (!match) {
+        report.errors.push({
+          row: i + 2,
+          message: `Établissement « ${etablissementRaw} » inconnu (doit correspondre à un établissement du district).`,
+        });
+        continue;
+      }
+      etablissement = match;
+    }
     const data = {
       nom,
       prenom,
-      fonction: capitalizeFirst(pick(n, ["fonction"])),
-      etablissement: toUpperFr(pick(n, ["etablissement"])),
+      fonction,
+      etablissement,
       ville,
-      portable: pick(n, ["portable", "telephoneportable", "mobile", "tel", "telephone"]),
-      fixe: pick(n, ["fixe", "lignefixe", "telephonefixe"]),
+      portable: formatPhoneFr(pick(n, ["portable", "telephoneportable", "mobile", "tel", "telephone"])),
+      fixe: formatPhoneFr(pick(n, ["fixe", "lignefixe", "telephonefixe"])),
       mail: pick(n, ["mail", "email", "courriel"]),
     };
     try {
@@ -342,7 +370,7 @@ async function importContactsDsden(rows) {
       nom,
       prenom: capitalizeFirst(pick(n, ["prenom"])),
       fonction: capitalizeFirst(pick(n, ["fonction"])),
-      telephone: pick(n, ["telephone", "tel", "telephonefixe", "portable"]),
+      telephone: formatPhoneFr(pick(n, ["telephone", "tel", "telephonefixe", "portable"])),
       mail: pick(n, ["mail", "email", "courriel"]),
     };
     try {

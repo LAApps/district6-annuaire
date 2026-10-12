@@ -57,6 +57,65 @@ export const THEMATIQUES_RESSOURCES = [
 // Villes du district (menu déroulant de la fiche Annuaire).
 export const VILLES_DISTRICT = ["BAGNOLET", "NOISY LE SEC", "MONTREUIL", "ROMAINVILLE", "ROSNY-SOUS-BOIS"];
 
+// Fonctions possibles (menu déroulant de la fiche Annuaire).
+export const FONCTIONS_DISTRICT = [
+  "Chef.fe d'établissement",
+  "Chef.fe d'établissement adjoint.e",
+  "Secrétaire générale",
+  "IEN",
+  "DCIO",
+  "IA IPR",
+  "IA IPR EVS",
+  "Coordos MLDS",
+  "CT AS",
+  "DDFPT",
+];
+
+// Établissements du district (menu déroulant de la fiche Annuaire), classés
+// par catégorie (collèges, puis lycées, puis le reste) et par ordre
+// alphabétique au sein de chaque catégorie.
+export const ETABLISSEMENTS_DISTRICT = [
+  // Collèges
+  "COLLEGE ALBERT CAMUS",
+  "COLLEGE CESARIA EVORA",
+  "COLLEGE COLONEL FABIEN",
+  "COLLEGE FRANCOISE HERITTIER",
+  "COLLEGE GEORGES POLITZER",
+  "COLLEGE GUSTAVE COURBET",
+  "COLLEGE JACQUES PREVERT",
+  "COLLEGE JEAN JAURES",
+  "COLLEGE JEAN MOULIN",
+  "COLLEGE LANGEVIN WALLON",
+  "COLLEGE MARAIS DE VILLIERS",
+  "COLLEGE MARCELIN BERTHELOT",
+  "COLLEGE OLYMPE DE GOUGES",
+  "COLLEGE OUM KALTHOUM",
+  "COLLEGE PAUL ELUARD",
+  "COLLEGE PIERRE-ANDRE HOUEL",
+  "COLLEGE RENE CASSIN",
+  "COLLEGE SAINT-EXUPERY",
+  "COLLEGE SOLVEIG-ANSPACH",
+  "COLLEGE TRAVAIL LANGEVIN",
+  // Lycées
+  "LYC GT CHARLES DE GAULLE",
+  "LYC POLYV CONDORCET",
+  "LYC POLYV EUGENE HENAFF",
+  "LYC POLYV EUGENIE COTTON",
+  "LYC GT JEAN JAURES",
+  "LYC PROF JEAN MOULIN",
+  "LYC POLYV L'HORTICULTURE ET PAYSAGE",
+  "LYC POLYV LIBERTE",
+  "LYC GT OLYMPE DE GOUGES",
+  "LYC PROF THEODORE MONOD",
+  // Autres structures
+  "CIO MONTREUIL",
+  "CIO NOISY LE SEC",
+  "CT Assist. Soc.",
+  "IA IPR",
+  "IEN",
+  "IEN-IO",
+];
+
 // Thèmes réseau par défaut (créés automatiquement si la collection est vide).
 export const THEMES_RESEAU_DEFAUT = [
   "Budget",

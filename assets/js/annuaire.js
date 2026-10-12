@@ -2,7 +2,7 @@
 // Onglet Annuaire — liste, recherche, ajout et modification des fiches.
 // ============================================================================
 
-import { AnnuaireAPI, ThemesReseauAPI, PersonnesRessourcesAPI, VILLES_DISTRICT } from "./db.js";
+import { AnnuaireAPI, ThemesReseauAPI, PersonnesRessourcesAPI, VILLES_DISTRICT, FONCTIONS_DISTRICT, ETABLISSEMENTS_DISTRICT } from "./db.js";
 import {
   escapeHtml,
   toast,
@@ -13,6 +13,7 @@ import {
   capitalizeWords,
   capitalizeFirst,
   telHref,
+  formatPhoneFr,
 } from "./utils.js";
 import { openImportModal } from "./import.js";
 import { isCurrentUserAdmin, isOwnAnnuaireEntry, getCurrentUser } from "./auth.js";
@@ -46,8 +47,16 @@ export async function initAnnuaire() {
   els.detailEditBtn = document.getElementById("btn-annuaire-detail-edit");
   els.detailDeleteBtn = document.getElementById("btn-annuaire-detail-delete");
 
+  els.fonctionSelect = document.getElementById("f-fonction");
+  els.etablissementSelect = document.getElementById("f-etablissement");
+
   els.villeSelect.innerHTML =
     `<option value="">—</option>` + VILLES_DISTRICT.map((v) => `<option value="${v}">${v}</option>`).join("");
+  els.fonctionSelect.innerHTML =
+    `<option value="">—</option>` + FONCTIONS_DISTRICT.map((f) => `<option value="${escapeHtml(f)}">${escapeHtml(f)}</option>`).join("");
+  els.etablissementSelect.innerHTML =
+    `<option value="">—</option>` +
+    ETABLISSEMENTS_DISTRICT.map((e) => `<option value="${escapeHtml(e)}">${escapeHtml(e)}</option>`).join("");
 
   wireOverlayClose("modal-annuaire-overlay");
   wireOverlayClose("modal-annuaire-detail-overlay");
@@ -362,8 +371,8 @@ async function saveForm() {
   }
   data.nom = toUpperFr(data.nom);
   data.prenom = capitalizeWords(data.prenom);
-  data.etablissement = toUpperFr(data.etablissement);
-  data.fonction = capitalizeFirst(data.fonction);
+  data.portable = formatPhoneFr(data.portable);
+  data.fixe = formatPhoneFr(data.fixe);
   if (!data.nom || !data.prenom) {
     toast("Le nom et le prénom sont obligatoires.", "error");
     return;

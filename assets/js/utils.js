@@ -78,6 +78,17 @@ export function telHref(str) {
   return digits ? `tel:${digits}` : "";
 }
 
+// Numéro de téléphone français : toujours au format "00 00 00 00 00".
+// Rajoute le 0 initial s'il manque (saisie à 9 chiffres) et regroupe les
+// chiffres par paires, quelle que soit la façon dont le numéro a été tapé
+// (espaces, points, tirets…).
+export function formatPhoneFr(str) {
+  let digits = String(str || "").replace(/\D/g, "");
+  if (!digits) return "";
+  if (digits.length === 9 && !digits.startsWith("0")) digits = "0" + digits;
+  return digits.match(/.{1,2}/g).join(" ");
+}
+
 export function humanFileSize(bytes) {
   if (!bytes && bytes !== 0) return "";
   const units = ["o", "Ko", "Mo", "Go"];

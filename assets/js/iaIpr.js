@@ -10,7 +10,7 @@
 import { IaIprReferentsAPI, IaIprSecteursAPI, VILLES_DISTRICT } from "./db.js";
 import { IA_IPR_REFERENTS_SEED, IA_IPR_SECTEURS_SEED } from "./iaIprData.js";
 import { isCurrentUserAdmin } from "./auth.js";
-import { escapeHtml, toast, openModal, closeModal, wireOverlayClose, telHref, toUpperFr, capitalizeWords } from "./utils.js";
+import { escapeHtml, toast, openModal, closeModal, wireOverlayClose, telHref, toUpperFr, capitalizeWords, formatPhoneFr } from "./utils.js";
 
 let referents = [];
 let secteurs = [];
@@ -159,7 +159,7 @@ async function saveForm() {
   const data = {
     nom: toUpperFr(els.form.elements["nom"].value.trim()),
     prenom: capitalizeWords(els.form.elements["prenom"].value.trim()),
-    telephone: els.form.elements["telephone"].value.trim(),
+    telephone: formatPhoneFr(els.form.elements["telephone"].value.trim()),
     mail: els.form.elements["mail"].value.trim(),
   };
   if (!data.nom || !data.prenom) {

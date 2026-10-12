@@ -5,7 +5,7 @@
 
 import { ContactsDsdenAPI } from "./db.js";
 import { isCurrentUserAdmin } from "./auth.js";
-import { escapeHtml, toast, openModal, closeModal, wireOverlayClose, capitalizeFirst, telHref } from "./utils.js";
+import { escapeHtml, toast, openModal, closeModal, wireOverlayClose, capitalizeFirst, telHref, formatPhoneFr } from "./utils.js";
 import { openImportModal } from "./import.js";
 
 let allContacts = [];
@@ -227,6 +227,7 @@ async function saveForm() {
   data.nom = capitalizeFirst(data.nom);
   data.prenom = capitalizeFirst(data.prenom);
   data.fonction = capitalizeFirst(data.fonction);
+  data.telephone = formatPhoneFr(data.telephone);
   if (!data.service && !data.nom) {
     toast("Merci de renseigner au moins le service ou le nom.", "error");
     return;
