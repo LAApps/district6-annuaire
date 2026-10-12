@@ -520,7 +520,8 @@ table.annuaire-table tr:hover td {
 }
 
 #annuaire-tbody tr,
-#dsden-tbody tr {
+#dsden-tbody tr,
+#iaipr-tbody tr {
   cursor: pointer;
 }
 

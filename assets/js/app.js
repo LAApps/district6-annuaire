@@ -17,6 +17,7 @@ import { initContacts } from "./contacts.js";
 import { initDepot } from "./depot.js";
 import { initContactsDsden } from "./contactsDsden.js";
 import { initCalendrier } from "./calendrier.js";
+import { initIaIpr } from "./iaIpr.js";
 import { initImport } from "./import.js";
 import { toast, openModal, closeModal, wireOverlayClose } from "./utils.js";
 
@@ -37,7 +38,15 @@ const btnLogout = document.getElementById("btn-logout");
 const userAvatar = document.getElementById("user-avatar");
 const userName = document.getElementById("user-name");
 
-const initialized = { annuaire: false, ressources: false, contacts: false, depot: false, dsden: false, calendrier: false };
+const initialized = {
+  annuaire: false,
+  ressources: false,
+  contacts: false,
+  depot: false,
+  dsden: false,
+  calendrier: false,
+  "ia-ipr": false,
+};
 
 // ----- Écran de connexion (e-mail + mot de passe) ----------------------------
 const formAuth = document.getElementById("form-auth");
@@ -260,6 +269,10 @@ document.querySelectorAll(".tab-btn").forEach((btn) => {
     if (btn.dataset.view === "calendrier" && !initialized.calendrier) {
       initialized.calendrier = true;
       initCalendrier().catch((err) => toast("Erreur d'initialisation Calendrier : " + err.message, "error"));
+    }
+    if (btn.dataset.view === "ia-ipr" && !initialized["ia-ipr"]) {
+      initialized["ia-ipr"] = true;
+      initIaIpr().catch((err) => toast("Erreur d'initialisation IA-IPR : " + err.message, "error"));
     }
   });
 });

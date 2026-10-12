@@ -139,6 +139,7 @@
         <button class="tab-btn" data-view="depot">Dépôt de documents</button>
         <button class="tab-btn" data-view="dsden">Contacts DSDEN/Rectorat</button>
         <button class="tab-btn" data-view="calendrier">Calendrier</button>
+        <button class="tab-btn" data-view="ia-ipr">IA-IPR</button>
       </nav>
     </header>
 
@@ -279,6 +280,31 @@
         <p class="field-hint" style="margin:-0.5rem 0 1rem;">Le bouton « Ajouter à mon agenda » télécharge l'événement au format standard (.ics), reconnu par les applications Calendrier/Agenda d'iPhone, Android et ordinateur.</p>
         <div id="calendrier-groups"></div>
         <p id="calendrier-empty" class="empty-state hidden">Aucun événement pour le moment.</p>
+      </section>
+
+      <!-- ===================== Vue IA-IPR ===================== -->
+      <section id="view-ia-ipr" class="view">
+        <div class="view-header">
+          <h2>Référents IA-IPR par ville</h2>
+        </div>
+        <div class="toolbar">
+          <select id="iaipr-ville-select" class="input">
+            <option value="">— Choisir une ville —</option>
+          </select>
+        </div>
+        <p id="iaipr-hint" class="empty-state">Sélectionnez une ville ci-dessus pour afficher la liste des référent·es IA-IPR par discipline. Cliquez ensuite sur une discipline pour voir la fiche du référent (nom, prénom, téléphone, mail).</p>
+        <div id="iaipr-table-wrap" class="table-wrap hidden">
+          <table id="iaipr-main-table" class="annuaire-table">
+            <thead>
+              <tr>
+                <th>Discipline</th>
+                <th>IA-IPR référent</th>
+              </tr>
+            </thead>
+            <tbody id="iaipr-tbody"></tbody>
+          </table>
+        </div>
+        <p id="iaipr-empty" class="empty-state hidden">Aucun référent connu pour cette ville.</p>
       </section>
     </main>
 
@@ -672,6 +698,59 @@
         <div class="modal__footer">
           <button type="button" id="btn-evenement-delete" class="btn btn-danger hidden" style="margin-right:auto;">Supprimer</button>
           <button type="button" id="btn-evenement-cancel" class="btn btn-secondary">Annuler</button>
+          <button type="submit" class="btn btn-primary">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================== Modale : référent IA-IPR (détail, lecture seule) ===================== -->
+  <div id="modal-iaipr-detail-overlay" class="modal-overlay">
+    <div class="modal">
+      <div class="modal__header">
+        <h3 id="modal-iaipr-detail-title">Référent IA-IPR</h3>
+        <button id="modal-iaipr-detail-close" class="modal__close" aria-label="Fermer">&times;</button>
+      </div>
+      <div class="modal__body">
+        <dl id="iaipr-detail-body" class="detail-list"></dl>
+      </div>
+      <div class="modal__footer">
+        <button type="button" id="btn-iaipr-detail-fermer" class="btn btn-secondary">Fermer</button>
+        <button type="button" id="btn-iaipr-detail-edit" class="btn btn-primary hidden">Modifier</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== Modale : fiche référent IA-IPR (édition) ===================== -->
+  <div id="modal-iaipr-overlay" class="modal-overlay">
+    <div class="modal">
+      <div class="modal__header">
+        <h3 id="modal-iaipr-title">Modifier le référent</h3>
+        <button id="modal-iaipr-close" class="modal__close" aria-label="Fermer">&times;</button>
+      </div>
+      <form id="form-iaipr">
+        <div class="modal__body">
+          <div class="form-row">
+            <div class="form-field">
+              <label for="ip-nom">Nom *</label>
+              <input class="input" id="ip-nom" name="nom" required />
+            </div>
+            <div class="form-field">
+              <label for="ip-prenom">Prénom *</label>
+              <input class="input" id="ip-prenom" name="prenom" required />
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="ip-telephone">Téléphone</label>
+            <input class="input" id="ip-telephone" name="telephone" type="tel" />
+          </div>
+          <div class="form-field">
+            <label for="ip-mail">Mail</label>
+            <input class="input" id="ip-mail" name="mail" type="email" />
+          </div>
+        </div>
+        <div class="modal__footer">
+          <button type="button" id="btn-iaipr-cancel" class="btn btn-secondary">Annuler</button>
           <button type="submit" class="btn btn-primary">Enregistrer</button>
         </div>
       </form>

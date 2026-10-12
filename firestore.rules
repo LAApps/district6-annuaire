@@ -105,6 +105,18 @@ service cloud.firestore {
       allow create, update, delete: if isCalendrierEditor();
     }
 
+    // IA-IPR : fiches des référent·es (nom, prénom, téléphone, mail) et leur
+    // répartition par ville/discipline. Consultation pour tous, gestion
+    // réservée aux administrateurs (y compris l'amorçage initial des données).
+    match /iaIprReferents/{docId} {
+      allow read: if isAcademicUser();
+      allow create, update, delete: if isAdmin();
+    }
+    match /iaIprSecteurs/{docId} {
+      allow read: if isAcademicUser();
+      allow create, update, delete: if isAdmin();
+    }
+
     // Question secrète de récupération de mot de passe : l'ID du document EST
     // l'adresse e-mail (en minuscules). Personne ne peut la LIRE depuis le
     // client (même pas son propriétaire) — seule la fonction serveur Vercel,

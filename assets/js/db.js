@@ -5,6 +5,7 @@
 // ============================================================================
 
 import { firebaseConfig } from "./firebase-config.js";
+import { IA_IPR_REFERENTS_SEED, IA_IPR_SECTEURS_SEED } from "./iaIprData.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
 import {
   getFirestore,
@@ -33,6 +34,8 @@ const col = {
   categoriesDepot: collection(db, "categoriesDepot"),
   recoverySecrets: collection(db, "recoverySecrets"),
   evenements: collection(db, "evenements"),
+  iaIprReferents: collection(db, "iaIprReferents"),
+  iaIprSecteurs: collection(db, "iaIprSecteurs"),
 };
 
 // ----- Listes fixes (thématiques des ressources) ------------------------
@@ -188,4 +191,53 @@ export const EvenementsAPI = {
   add: (data) => genericAdd(col.evenements, data),
   update: (id, data) => genericUpdate(col.evenements, id, data),
   remove: (id) => genericDelete(col.evenements, id),
+};
+
+// ----- IA-IPR (référents par ville / discipline) ------------------------------
+// Fiches des référent·es IA-IPR (nom, prénom, téléphone, mail — même format
+// que les autres fiches de l'application), reliées à une ville + discipline
+// via iaIprSecteurs. Données d'amorçage extraites de la note d'information
+// « Répartition des secteurs » (voir assets/js/iaIprData.js) : ne sont créées
+// en base qu'une seule fois, au premier chargement de l'onglet par un
+// administrateur. Ensuite, seules les fiches (contact) restent modifiables ;
+// consultation ouverte à tous.
+export const IaIprReferentsAPI = {
+  list: () => genericList(col.iaIprReferents, "nom"),
+  add: (data) => genericAdd(col.iaIprReferents, data),
+  update: (id, data) => genericUpdate(col.iaIprReferents, id, data),
+  remove: (id) => genericDelete(col.iaIprReferents, id),
+};
+
+export const IaIprSecteursAPI = {
+  list: () => genericList(col.iaIprSecteurs, "ville"),
+  // Amorce les deux collections (référents puis secteurs qui les référencent)
+  // si elles sont vides, puis renvoie systématiquement l'état courant des deux.
+  ensureDefaults: async () => {
+    let referents = await genericList(col.iaIprReferents, "nom");
+    const keyToId = new Map();
+
+    if (referents.length === 0) {
+      for (const r of IA_IPR_REFERENTS_SEED) {
+        const ref = await genericAdd(col.iaIprReferents, { nom: r.nom, prenom: r.prenom, telephone: "", mail: r.mail });
+        keyToId.set(r.key, ref.id);
+      }
+      referents = await genericList(col.iaIprReferents, "nom");
+    } else {
+      for (const r of referents) {
+        keyToId.set(`${r.nom} ${r.prenom}`.toUpperCase(), r.id);
+      }
+    }
+
+    let secteurs = await genericList(col.iaIprSecteurs, "ville");
+    if (secteurs.length === 0) {
+      for (const s of IA_IPR_SECTEURS_SEED) {
+        const referentId = keyToId.get(s.referentKey);
+        if (!referentId) continue;
+        await genericAdd(col.iaIprSecteurs, { ville: s.ville, discipline: s.discipline, referentId });
+      }
+      secteurs = await genericList(col.iaIprSecteurs, "ville");
+    }
+
+    return { referents, secteurs };
+  },
 };
