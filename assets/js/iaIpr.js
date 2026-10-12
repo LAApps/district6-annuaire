@@ -8,6 +8,7 @@
 // ============================================================================
 
 import { IaIprReferentsAPI, IaIprSecteursAPI, VILLES_DISTRICT } from "./db.js";
+import { IA_IPR_REFERENTS_SEED, IA_IPR_SECTEURS_SEED } from "./iaIprData.js";
 import { isCurrentUserAdmin } from "./auth.js";
 import { escapeHtml, toast, openModal, closeModal, wireOverlayClose, telHref, toUpperFr, capitalizeWords } from "./utils.js";
 
@@ -58,13 +59,18 @@ export async function initIaIpr() {
 async function loadAndRender() {
   try {
     if (isCurrentUserAdmin()) {
-      const existing = await IaIprReferentsAPI.list();
-      if (existing.length === 0) {
-        toast("Premier chargement des données IA-IPR, cela peut prendre quelques secondes…", "info");
+      const [existingReferents, existingSecteurs] = await Promise.all([IaIprReferentsAPI.list(), IaIprSecteursAPI.list()]);
+      const incomplete =
+        existingReferents.length < IA_IPR_REFERENTS_SEED.length || existingSecteurs.length < IA_IPR_SECTEURS_SEED.length;
+      if (incomplete) {
+        toast("Mise à jour des données IA-IPR en cours, cela peut prendre quelques secondes…", "info");
       }
       const seeded = await IaIprSecteursAPI.ensureDefaults();
       referents = seeded.referents;
       secteurs = seeded.secteurs;
+      if (incomplete && seeded.seededNow) {
+        toast("Données IA-IPR complétées.", "success");
+      }
     } else {
       [referents, secteurs] = await Promise.all([IaIprReferentsAPI.list(), IaIprSecteursAPI.list()]);
     }

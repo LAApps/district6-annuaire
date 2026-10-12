@@ -193,14 +193,30 @@ export const EvenementsAPI = {
   remove: (id) => genericDelete(col.evenements, id),
 };
 
+// Identifiant de document stable à partir d'une clé texte (supprime les
+// accents, met en minuscules, remplace tout caractère non alphanumérique
+// par un tiret). Permet un amorçage réessayable par setDoc (voir plus bas) :
+// relancer l'amorçage ne duplique jamais rien et complète seulement ce qui
+// manque encore, même si un chargement précédent a été interrompu en cours
+// de route (page rechargée/fermée avant la fin des ~120 écritures).
+function slugify(str) {
+  return String(str)
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
 // ----- IA-IPR (référents par ville / discipline) ------------------------------
 // Fiches des référent·es IA-IPR (nom, prénom, téléphone, mail — même format
 // que les autres fiches de l'application), reliées à une ville + discipline
 // via iaIprSecteurs. Données d'amorçage extraites de la note d'information
-// « Répartition des secteurs » (voir assets/js/iaIprData.js) : ne sont créées
-// en base qu'une seule fois, au premier chargement de l'onglet par un
-// administrateur. Ensuite, seules les fiches (contact) restent modifiables ;
-// consultation ouverte à tous.
+// « Répartition des secteurs » (voir assets/js/iaIprData.js), créées avec un
+// identifiant déterministe pour que l'amorçage soit réessayable sans jamais
+// dupliquer : à chaque chargement par un administrateur, seules les fiches ou
+// associations encore manquantes sont (re)créées. Ensuite, les fiches restent
+// modifiables normalement ; consultation ouverte à tous.
 export const IaIprReferentsAPI = {
   list: () => genericList(col.iaIprReferents, "nom"),
   add: (data) => genericAdd(col.iaIprReferents, data),
@@ -210,34 +226,49 @@ export const IaIprReferentsAPI = {
 
 export const IaIprSecteursAPI = {
   list: () => genericList(col.iaIprSecteurs, "ville"),
-  // Amorce les deux collections (référents puis secteurs qui les référencent)
-  // si elles sont vides, puis renvoie systématiquement l'état courant des deux.
+  // Complète les deux collections (référents, puis secteurs qui les
+  // référencent) avec tout ce qui manque encore, puis renvoie l'état courant
+  // des deux ainsi qu'un indicateur signalant si une écriture a eu lieu.
   ensureDefaults: async () => {
-    let referents = await genericList(col.iaIprReferents, "nom");
-    const keyToId = new Map();
+    const keyToId = new Map(IA_IPR_REFERENTS_SEED.map((r) => [r.key, `ref-${slugify(r.key)}`]));
 
-    if (referents.length === 0) {
-      for (const r of IA_IPR_REFERENTS_SEED) {
-        const ref = await genericAdd(col.iaIprReferents, { nom: r.nom, prenom: r.prenom, telephone: "", mail: r.mail });
-        keyToId.set(r.key, ref.id);
-      }
-      referents = await genericList(col.iaIprReferents, "nom");
-    } else {
-      for (const r of referents) {
-        keyToId.set(`${r.nom} ${r.prenom}`.toUpperCase(), r.id);
-      }
+    let referents = await genericList(col.iaIprReferents, "nom");
+    const existingRefIds = new Set(referents.map((r) => r.id));
+    let wroteReferents = false;
+    for (const r of IA_IPR_REFERENTS_SEED) {
+      const id = keyToId.get(r.key);
+      if (existingRefIds.has(id)) continue;
+      await setDoc(doc(col.iaIprReferents, id), {
+        nom: r.nom,
+        prenom: r.prenom,
+        telephone: "",
+        mail: r.mail,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+      wroteReferents = true;
     }
+    if (wroteReferents) referents = await genericList(col.iaIprReferents, "nom");
 
     let secteurs = await genericList(col.iaIprSecteurs, "ville");
-    if (secteurs.length === 0) {
-      for (const s of IA_IPR_SECTEURS_SEED) {
-        const referentId = keyToId.get(s.referentKey);
-        if (!referentId) continue;
-        await genericAdd(col.iaIprSecteurs, { ville: s.ville, discipline: s.discipline, referentId });
-      }
-      secteurs = await genericList(col.iaIprSecteurs, "ville");
+    const existingSecteurIds = new Set(secteurs.map((s) => s.id));
+    let wroteSecteurs = false;
+    for (const s of IA_IPR_SECTEURS_SEED) {
+      const referentId = keyToId.get(s.referentKey);
+      if (!referentId) continue;
+      const id = `sec-${slugify(s.ville)}__${slugify(s.discipline)}`;
+      if (existingSecteurIds.has(id)) continue;
+      await setDoc(doc(col.iaIprSecteurs, id), {
+        ville: s.ville,
+        discipline: s.discipline,
+        referentId,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+      wroteSecteurs = true;
     }
+    if (wroteSecteurs) secteurs = await genericList(col.iaIprSecteurs, "ville");
 
-    return { referents, secteurs };
+    return { referents, secteurs, seededNow: wroteReferents || wroteSecteurs };
   },
 };
