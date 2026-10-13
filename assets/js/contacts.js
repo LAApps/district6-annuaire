@@ -119,10 +119,12 @@ function countForTheme(themeId) {
 }
 
 function render() {
+  const admin = isCurrentUserAdmin();
   els.themeGrid.innerHTML = themes
     .map(
       (t) => `
       <div class="theme-card ${t.id === selectedThemeId ? "selected" : ""}" data-id="${t.id}">
+        ${admin ? `<button type="button" class="theme-card__delete" data-action="delete-theme" data-id="${t.id}" aria-label="Supprimer le thème « ${escapeHtml(t.nom)} »" title="Supprimer ce thème">&times;</button>` : ""}
         ${escapeHtml(t.nom)}
         <span class="count">${countForTheme(t.id)} contact(s)</span>
       </div>`
@@ -130,9 +132,37 @@ function render() {
     .join("");
 
   els.themeGrid.querySelectorAll(".theme-card").forEach((card) => {
-    card.addEventListener("click", () => {
+    card.addEventListener("click", (e) => {
+      if (e.target.closest('[data-action="delete-theme"]')) return;
       selectedThemeId = selectedThemeId === card.dataset.id ? null : card.dataset.id;
       render();
+    });
+  });
+
+  els.themeGrid.querySelectorAll('[data-action="delete-theme"]').forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const theme = themes.find((t) => t.id === btn.dataset.id);
+      if (!theme) return;
+      const nbLiens = countForTheme(theme.id);
+      const confirmMsg =
+        nbLiens > 0
+          ? `Supprimer le thème « ${theme.nom} » ? Les ${nbLiens} personne(s) ressource(s) associée(s) à ce thème seront également retirées.`
+          : `Supprimer le thème « ${theme.nom} » ?`;
+      if (!confirm(confirmMsg)) return;
+      try {
+        const liensDuTheme = liens.filter((l) => l.themeId === theme.id);
+        for (const lien of liensDuTheme) {
+          await PersonnesRessourcesAPI.remove(lien.id);
+        }
+        await ThemesReseauAPI.remove(theme.id);
+        toast("Thème supprimé.", "success");
+        if (selectedThemeId === theme.id) selectedThemeId = null;
+        await Promise.all([loadThemes(), loadLiens()]);
+        render();
+      } catch (err) {
+        toast("Erreur lors de la suppression : " + err.message, "error");
+      }
     });
   });
 

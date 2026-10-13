@@ -22,12 +22,9 @@ export const firebaseConfig = {
 // firestore.rules / storage.rules (indispensable, ne pas s'appuyer que sur le JS).
 export const ALLOWED_EMAIL_DOMAINS = ["ac-creteil.fr"];
 
-// Adresse e-mail de l'administrateur de l'application (bouton "Contacter l'administrateur").
-export const ADMIN_EMAIL = "lhaj.azzouzi@ac-creteil.fr";
-
 // Adresses ayant les droits d'administration (import Excel, ajout/suppression
-// de ressources, thèmes, personnes ressources, et modification de n'importe
-// quelle fiche annuaire). Les autres utilisateurs ne peuvent modifier que
+// de thèmes, ressources partagées, contacts DSDEN, et modification de
+// n'importe quelle fiche annuaire). Les autres utilisateurs ne peuvent modifier que
 // leur propre fiche annuaire (celle dont le champ "mail" correspond à leur
 // adresse de connexion).
 // IMPORTANT : cette liste doit être répétée à l'identique dans firestore.rules

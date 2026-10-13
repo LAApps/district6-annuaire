@@ -41,11 +41,6 @@ service cloud.firestore {
       allow delete: if isAcademicUser() && (isAdmin() || ownsAnnuaireDoc(resource.data));
     }
 
-    match /ressources/{docId} {
-      allow read: if isAcademicUser();
-      allow create, update, delete: if isAdmin();
-    }
-
     match /themesReseau/{docId} {
       allow read: if isAcademicUser();
       allow create, update, delete: if isAdmin();

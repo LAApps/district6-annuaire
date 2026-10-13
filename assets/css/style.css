@@ -678,6 +678,7 @@ table.annuaire-table tr:hover td {
   margin-bottom: 1.5rem;
 }
 .theme-card {
+  position: relative;
   background: var(--blanc);
   border: 1px solid var(--gris-bordure);
   border-radius: var(--rayon);
@@ -704,6 +705,31 @@ table.annuaire-table tr:hover td {
   margin-top: 0.25rem;
   color: inherit;
   opacity: 0.75;
+}
+.theme-card__delete {
+  position: absolute;
+  top: 0.3rem;
+  right: 0.4rem;
+  width: 20px;
+  height: 20px;
+  line-height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--gris-texte-mute);
+  font-size: 1rem;
+  cursor: pointer;
+}
+.theme-card__delete:hover {
+  background: var(--rouge-marianne);
+  color: var(--blanc);
+}
+.theme-card.selected .theme-card__delete {
+  color: var(--blanc);
+}
+.theme-card.selected .theme-card__delete:hover {
+  background: rgba(255, 255, 255, 0.25);
 }
 
 .contact-list {

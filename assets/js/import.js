@@ -1,15 +1,13 @@
 // ============================================================================
-// Import Excel/CSV générique pour Annuaire, Ressources et Personnes ressources.
+// Import Excel/CSV générique pour Annuaire, Personnes ressources et Contacts DSDEN.
 // Utilise la librairie SheetJS (global `XLSX`, chargée en CDN dans index.html).
 // ============================================================================
 
 import {
   AnnuaireAPI,
-  RessourcesAPI,
   ThemesReseauAPI,
   PersonnesRessourcesAPI,
   ContactsDsdenAPI,
-  THEMATIQUES_RESSOURCES,
   VILLES_DISTRICT,
   FONCTIONS_DISTRICT,
   ETABLISSEMENTS_DISTRICT,
@@ -36,17 +34,6 @@ const TEMPLATES = {
         Fixe: "0140000000",
         Mail: "marie.dupont@ac-creteil.fr",
       },
-    ],
-  },
-  ressources: {
-    title: "Importer des ressources depuis Excel",
-    instructions:
-      `Colonnes attendues : Titre, Thématique (${THEMATIQUES_RESSOURCES.map((t) => t.label).join(", ")}), Type (lien, pdf ou zip), URL, Description. ` +
-      "L'application n'héberge pas de fichiers : pour un PDF/ZIP, indiquez l'URL d'un fichier déjà déposé sur Drive, l'ENT ou un site académique.",
-    sheetName: "Ressources",
-    fileName: "modele-ressources.xlsx",
-    sampleRows: [
-      { Titre: "Guide DHG 2026", Thématique: "DHG", Type: "lien", URL: "https://exemple.fr/guide-dhg", Description: "Guide de répartition horaire" },
     ],
   },
   "personnes-ressources": {
@@ -166,7 +153,6 @@ async function runImport() {
 
     let report;
     if (currentType === "annuaire") report = await importAnnuaire(rows);
-    else if (currentType === "ressources") report = await importRessources(rows);
     else if (currentType === "personnes-ressources") report = await importPersonnesRessources(rows);
     else report = await importContactsDsden(rows);
 
@@ -255,51 +241,6 @@ async function importAnnuaire(rows) {
     };
     try {
       await AnnuaireAPI.add(data);
-      report.added++;
-    } catch (err) {
-      report.errors.push({ row: i + 2, message: err.message });
-    }
-  }
-  return report;
-}
-
-// ----- Import Ressources ------------------------------------------------------
-async function importRessources(rows) {
-  const labelToId = new Map();
-  THEMATIQUES_RESSOURCES.forEach((t) => {
-    labelToId.set(normalizeKey(t.label), t.id);
-    labelToId.set(normalizeKey(t.id), t.id);
-  });
-
-  const report = { total: rows.length, added: 0, errors: [] };
-  for (let i = 0; i < rows.length; i++) {
-    const n = normalizeRow(rows[i]);
-    const titre = capitalizeFirst(pick(n, ["titre"]));
-    const thematiqueRaw = pick(n, ["thematique"]);
-    const url = pick(n, ["url", "lien"]);
-    let type = pick(n, ["type"]).toLowerCase();
-    const description = capitalizeFirst(pick(n, ["description"]));
-
-    if (!titre) {
-      report.errors.push({ row: i + 2, message: "Le titre est obligatoire." });
-      continue;
-    }
-    const thematique = labelToId.get(normalizeKey(thematiqueRaw));
-    if (!thematique) {
-      report.errors.push({ row: i + 2, message: `Thématique « ${thematiqueRaw} » inconnue.` });
-      continue;
-    }
-    if (!type) type = url ? "lien" : "";
-    if (!["lien", "pdf", "zip"].includes(type)) {
-      report.errors.push({ row: i + 2, message: `Type « ${type} » invalide (attendu : lien, pdf ou zip).` });
-      continue;
-    }
-    if (!url) {
-      report.errors.push({ row: i + 2, message: "L'URL est obligatoire pour un import (fichier déjà hébergé en ligne)." });
-      continue;
-    }
-    try {
-      await RessourcesAPI.add({ titre, thematique, type, url, description, ajoutePar: "Import Excel" });
       report.added++;
     } catch (err) {
       report.errors.push({ row: i + 2, message: err.message });

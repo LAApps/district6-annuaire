@@ -1,8 +1,9 @@
 // ============================================================================
-// Onglet Dépôt de documents — bibliothèque classée par catégorie, contribution
-// libre (lien ou fichier) de tous les utilisateurs. Les fichiers sont
-// hébergés sur Cloudinary (upload non signé, voir cloudinary-config.js) car
-// l'application n'utilise pas Firebase Storage (reste sur le forfait gratuit).
+// Onglet Ressources partagées (ex Dépôt de documents) — bibliothèque classée
+// par catégorie, contribution libre (lien ou fichier) de tous les
+// utilisateurs. Les fichiers sont hébergés sur Cloudinary (upload non signé,
+// voir cloudinary-config.js) car l'application n'utilise pas Firebase
+// Storage (reste sur le forfait gratuit).
 // ============================================================================
 
 import { DocumentsAPI, CategoriesDepotAPI } from "./db.js";

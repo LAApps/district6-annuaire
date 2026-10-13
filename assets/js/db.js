@@ -26,7 +26,6 @@ export const db = getFirestore(app);
 // ----- Collections -----------------------------------------------------
 const col = {
   annuaire: collection(db, "annuaire"),
-  ressources: collection(db, "ressources"),
   themesReseau: collection(db, "themesReseau"),
   personnesRessources: collection(db, "personnesRessources"),
   documents: collection(db, "documents"),
@@ -37,22 +36,6 @@ const col = {
   iaIprReferents: collection(db, "iaIprReferents"),
   iaIprSecteurs: collection(db, "iaIprSecteurs"),
 };
-
-// ----- Listes fixes (thématiques des ressources) ------------------------
-export const THEMATIQUES_RESSOURCES = [
-  { id: "budget", label: "Budget" },
-  { id: "dhg", label: "DHG" },
-  { id: "management", label: "Management" },
-  { id: "montage-projet", label: "Montage de projet" },
-  { id: "ia", label: "Intelligence artificielle" },
-  { id: "evaluations", label: "Évaluations" },
-  { id: "syndicats", label: "Syndicats" },
-  { id: "textes-officiels", label: "Textes officiels" },
-  { id: "bulletins-academiques", label: "Bulletins académiques" },
-  { id: "bulletins-departementaux", label: "Bulletins départementaux" },
-  { id: "courriers-types", label: "Courriers types" },
-  { id: "documents-types", label: "Documents types" },
-];
 
 // Villes du district (menu déroulant de la fiche Annuaire).
 export const VILLES_DISTRICT = ["BAGNOLET", "NOISY LE SEC", "MONTREUIL", "ROMAINVILLE", "ROSNY-SOUS-BOIS"];
@@ -166,20 +149,11 @@ export const AnnuaireAPI = {
   remove: (id) => genericDelete(col.annuaire, id),
 };
 
-// ----- Ressources ----------------------------------------------------------
-// Les PDF/ZIP ne sont pas hébergés par l'application (pas de Firebase Storage,
-// pour rester sur le forfait gratuit Spark) : on stocke uniquement l'URL d'un
-// fichier déjà hébergé ailleurs (Drive, ENT, site académique…).
-export const RessourcesAPI = {
-  list: () => genericList(col.ressources, "createdAt"),
-  add: (data) => genericAdd(col.ressources, data),
-  remove: (item) => genericDelete(col.ressources, item.id),
-};
-
 // ----- Thèmes réseau + personnes ressources -------------------------------
 export const ThemesReseauAPI = {
   list: () => genericList(col.themesReseau, "nom"),
   add: (nom) => genericAdd(col.themesReseau, { nom }),
+  remove: (id) => genericDelete(col.themesReseau, id),
   ensureDefaults: async () => {
     const existing = await genericList(col.themesReseau, "nom");
     if (existing.length > 0) return existing;

@@ -139,9 +139,8 @@
       <nav id="tabs-nav" class="tabs-nav" aria-label="Navigation principale">
         <button id="btn-nav-close" class="nav-close" aria-label="Fermer le menu">&times;</button>
         <button class="tab-btn active" data-view="annuaire">Annuaire</button>
-        <button class="tab-btn" data-view="ressources">Ressources</button>
         <button class="tab-btn" data-view="contacts">Personnes ressources</button>
-        <button class="tab-btn" data-view="depot">Dépôt de documents</button>
+        <button class="tab-btn" data-view="depot">Ressources partagées</button>
         <button class="tab-btn" data-view="dsden">Contacts DSDEN/Rectorat</button>
         <button class="tab-btn" data-view="calendrier">Calendrier</button>
         <button class="tab-btn" data-view="ia-ipr">IA-IPR</button>
@@ -189,23 +188,6 @@
         <p id="annuaire-empty" class="empty-state hidden">Aucune fiche dans l'annuaire pour le moment.</p>
       </section>
 
-      <!-- ===================== Vue Ressources ===================== -->
-      <section id="view-ressources" class="view">
-        <div class="view-header">
-          <h2>Zone de ressources</h2>
-          <div class="view-actions">
-            <button id="btn-contact-admin" class="btn btn-secondary">Contacter l'administrateur</button>
-            <button id="btn-ressources-import" class="btn btn-secondary">Importer un fichier Excel</button>
-            <button id="btn-ressource-add" class="btn btn-primary">+ Ajouter une ressource</button>
-          </div>
-        </div>
-        <div class="toolbar">
-          <input id="ressources-search" class="input search-input" type="search" placeholder="Rechercher une ressource…" />
-          <select id="ressources-filter-thematique" class="input"></select>
-        </div>
-        <div id="ressources-groups"></div>
-      </section>
-
       <!-- ===================== Vue Personnes ressources ===================== -->
       <section id="view-contacts" class="view">
         <div class="view-header">
@@ -221,10 +203,10 @@
         <div id="contact-list" class="contact-list"></div>
       </section>
 
-      <!-- ===================== Vue Dépôt de documents ===================== -->
+      <!-- ===================== Vue Ressources partagées (ex Dépôt de documents) ===================== -->
       <section id="view-depot" class="view">
         <div class="view-header">
-          <h2>Dépôt de documents</h2>
+          <h2>Ressources partagées</h2>
           <div class="view-actions">
             <button id="btn-depot-categorie-add" class="btn btn-secondary">+ Ajouter une catégorie</button>
             <button id="btn-depot-add" class="btn btn-primary">+ Déposer un document</button>
@@ -402,49 +384,6 @@
         <button type="button" id="btn-annuaire-detail-fermer" class="btn btn-secondary">Fermer</button>
         <button type="button" id="btn-annuaire-detail-edit" class="btn btn-primary hidden">Modifier</button>
       </div>
-    </div>
-  </div>
-
-  <!-- ===================== Modale : ressource ===================== -->
-  <div id="modal-ressource-overlay" class="modal-overlay">
-    <div class="modal">
-      <div class="modal__header">
-        <h3 id="modal-ressource-title">Ajouter une ressource</h3>
-        <button id="modal-ressource-close" class="modal__close" aria-label="Fermer">&times;</button>
-      </div>
-      <form id="form-ressource">
-        <div class="modal__body">
-          <div class="form-field">
-            <label for="r-titre">Titre *</label>
-            <input class="input" id="r-titre" name="titre" required />
-          </div>
-          <div class="form-field">
-            <label for="r-thematique">Thématique *</label>
-            <select class="input" id="r-thematique" name="thematique" required></select>
-          </div>
-          <div class="form-field">
-            <label>Type de ressource *</label>
-            <div style="display:flex;gap:1rem;">
-              <label style="font-weight:400;"><input type="radio" name="type" value="lien" checked /> Lien</label>
-              <label style="font-weight:400;"><input type="radio" name="type" value="pdf" /> PDF</label>
-              <label style="font-weight:400;"><input type="radio" name="type" value="zip" /> ZIP</label>
-            </div>
-          </div>
-          <div id="champ-ressource-lien" class="form-field">
-            <label id="r-url-label" for="r-url">URL du lien *</label>
-            <input class="input" id="r-url" name="url" type="url" required placeholder="https://…" />
-            <p id="r-url-hint" class="field-hint"></p>
-          </div>
-          <div class="form-field">
-            <label for="r-description">Description (optionnel)</label>
-            <textarea class="input" id="r-description" name="description" rows="3"></textarea>
-          </div>
-        </div>
-        <div class="modal__footer">
-          <button type="button" id="btn-ressource-cancel" class="btn btn-secondary">Annuler</button>
-          <button type="submit" id="btn-ressource-submit" class="btn btn-primary">Ajouter</button>
-        </div>
-      </form>
     </div>
   </div>
 

@@ -12,7 +12,6 @@ import {
   updateSecurityQuestion,
 } from "./auth.js";
 import { initAnnuaire } from "./annuaire.js";
-import { initRessources } from "./ressources.js";
 import { initContacts } from "./contacts.js";
 import { initDepot } from "./depot.js";
 import { initContactsDsden } from "./contactsDsden.js";
@@ -40,7 +39,6 @@ const userName = document.getElementById("user-name");
 
 const initialized = {
   annuaire: false,
-  ressources: false,
   contacts: false,
   depot: false,
   dsden: false,
@@ -250,17 +248,13 @@ document.querySelectorAll(".tab-btn").forEach((btn) => {
     document.getElementById(`view-${btn.dataset.view}`).classList.add("active");
     closeNavDrawer();
 
-    if (btn.dataset.view === "ressources" && !initialized.ressources) {
-      initialized.ressources = true;
-      initRessources().catch((err) => toast("Erreur d'initialisation Ressources : " + err.message, "error"));
-    }
     if (btn.dataset.view === "contacts" && !initialized.contacts) {
       initialized.contacts = true;
       initContacts().catch((err) => toast("Erreur d'initialisation Personnes ressources : " + err.message, "error"));
     }
     if (btn.dataset.view === "depot" && !initialized.depot) {
       initialized.depot = true;
-      initDepot().catch((err) => toast("Erreur d'initialisation Dépôt de documents : " + err.message, "error"));
+      initDepot().catch((err) => toast("Erreur d'initialisation Ressources partagées : " + err.message, "error"));
     }
     if (btn.dataset.view === "dsden" && !initialized.dsden) {
       initialized.dsden = true;
